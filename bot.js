@@ -14,8 +14,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('site'));
 app.use(express.static('site/images/icons'));
 app.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname,'site/index.html'));
 	console.log('Got a res');
+	res.sendFile(path.join(__dirname,'site/index.html'));
 });
 
 app.post('/', function (req, res) {
