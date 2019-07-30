@@ -8,14 +8,20 @@ var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
 var app = express();
 var path = require('path');
+var cookieParser = require('cookie-parser')
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser("reachedcoding"));
 app.use(express.static('site'));
 app.use(express.static('site/images/icons'));
-app.get('/', function (req, res) {
+app.get('/', function (req, res, next) {
 	console.log('Got a res');
-	res.sendFile(path.join(__dirname,'site/index.html'));
+	let cookies = req.cookies;
+	console.log(cookies);
+	next();
+}, function (req, res) {
+	res.sendFile(path.join(__dirname, 'site/login.html'));
 });
 
 app.post('/', function (req, res) {
