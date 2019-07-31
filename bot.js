@@ -46,7 +46,11 @@ app.get('/', function (req, res, next) {
 	}
 	next();
 }, function (req, res) {
-	console.log(res.locals.username + ' ' + res.locals.password);
+	let username = res.locals.username;
+	let password = res.locals.password;
+	if (username && password) {
+		console.log(res.locals.username + ' ' + res.locals.password);
+	}
 	res.sendFile(path.join(__dirname, 'site/login.html'));
 });
 
