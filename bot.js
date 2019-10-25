@@ -12,13 +12,22 @@ var cookieParser = require('cookie-parser')
 const crypto = require("crypto");
 const { google } = require('googleapis');
 const readline = require('readline');
+const request = require('request');
 
-let spreadsheet_ID;
+let spreadsheet_ID, db, users, client_id, client_secret;
 
 fs.readFile('settings.json', (err, content) => {
 	if (err) return console.log('Error loading settings:', err);
 	var settings = JSON.parse(content);
 	spreadsheet_ID = settings.spreadsheet_ID;
+	client_id = settings.client_id;
+	client_secret = settings.client_secret;
+});
+
+fs.readFile('db.json', (err, content) => {
+	if (err) return console.log('Error loading settings:', err);
+	db = JSON.parse(content);
+	users = db.users;
 });
 
 var bodyParser = require("body-parser");
@@ -26,45 +35,122 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser("reachedcoding"));
 app.use(express.static('site'));
 app.use(express.static('site/images/icons'));
-app.get('/', function (req, res, next) {
-	let username = req.query.email;
-	let password = req.query.pass;
-	if (username && password) {
-		console.log('Username', username);
-		console.log('Password', password);
-		res.locals.username = username;
-		res.locals.password = password;
+
+app.use('/', function (req, res, next) {
+	if (req.method === 'GET' || req.method === 'HEAD') {
+		if (req.cookies.id) {
+			next();
+		} else {
+			let randomNumber = crypto.randomBytes(20).toString('hex');
+			res.cookie('id', randomNumber, { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
+			console.log('cookie created successfully', randomNumber);
+			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Flocalhost&prompt=consent');
+		}
+	} else
+		next();
+});
+
+app.get('/', async function (req, res, next) {
+	let code = req.query.code;
+	if (code) {
+		let options = {
+			form: {
+				code: code,
+				client_id: client_id,
+				client_secret: client_secret,
+				grant_type: 'authorization_code',
+				scope: 'identify email guilds',
+				redirect_uri: 'https://localhost'
+			}, 
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}
+		await request.post(`https://discordapp.com/api/oauth2/token`, options, function(err, res, body) {
+			console.log(body);
+		});
+	} else {
+
 	}
+	next();
+}, function (req, res) {
+	res.sendFile(path.join(__dirname, 'site/login.html'));
+});
+
+// app.get('/', function (req, res, next) {
+// 	let cookie;
+// 	console.log('Got');
+// 	cookie, res = checkCookies(req, res);
+// 	next();
+// }, function (req, res) {
+// 	res.sendFile(path.join(__dirname, 'site/login.html'));
+// });
+
+// app.get('/register', function (req, res, next) {
+// 	let firstName = req.query.firstName;
+// 	let lastName = req.query.lastName;
+// 	let email = req.query.email;
+// 	let pass = req.query.pass;
+// 	if (firstName, lastName, email, pass) {
+// 		let user = new User(firstName, lastName, email, pass, crypto.randomBytes(20).toString('hex'), null, null);
+// 		users.push(user);
+// 		res.locals.user = user;
+// 	} else {
+// 		res.locals.user = false;
+// 	}
+// }, function (req, res) {
+// 	let user = res.locals.user;
+// 	if (!user) {
+// 		res.sendFile(path.join(__dirname, 'site/register.html'));
+// 	} else {
+// 		//res.redirect('/')
+// 	}
+// });
+
+// app.post('/', function (req, res) {
+// 	console.log('Post a res');
+// });
+
+// EXPRESS HELPER FUNCTIONS
+
+function checkCookies(req, res) {
 	let cookie = req.cookies.id;
 	if (cookie === undefined) {
 		// no: set a new cookie
 		let randomNumber = crypto.randomBytes(20).toString('hex');
 		res.cookie('id', randomNumber, { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
-		console.log('cookie created successfully');
+		console.log('cookie created successfully', randomNumber);
+		return false, res;
 	} else {
 		console.log('cookie exists', cookie);
+		return cookie, res;
 	}
-	next();
-}, function (req, res) {
+}
+
+function checkCredentials(res) {
 	let username = res.locals.username;
 	let password = res.locals.password;
-	if (username && password) {
-		console.log(res.locals.username + ' ' + res.locals.password);
+	return username, password;
+}
+
+function authenticate() {
+	let spreadsheet = getValues();
+	for (var i = 1; i < spreadsheet.length; i++) {
+		if (username.toLowerCase() == spreadsheet[i][0].toLowerCase()) {
+			if (password == spreadsheet[i][1]) {
+				return i, spreadsheet;
+			}
+		}
 	}
-	res.sendFile(path.join(__dirname, 'site/login.html'));
-});
+	return false;
+}
 
-app.get('/login', function (req, res, next) {
-	res.sendFile(path.join(__dirname, 'site/login.html'));
-});
-
-app.get('/register', function (req, res) {
-	res.sendFile(path.join(__dirname, 'site/register.html'));
-});
-
-app.post('/', function (req, res) {
-	console.log('Post a res');
-});
+function saveDatabase() {
+	db.users = users;
+	fs.writeFile('db.json', JSON.stringify(db, null, 2), function (err) {
+		if (err) return console.log(err);
+	});
+}
 
 // EXPRESS SERVER
 
@@ -124,7 +210,7 @@ function getNewToken(oAuth2Client, callback) {
 		});
 	});
 }
-function getValues(auth, email, paid, author = null) {
+function getValues() {
 	const sheets = google.sheets({ version: 'v4', auth });
 	let range = 'Sheet1';
 	let spreadsheetId = spreadsheet_ID;
@@ -136,11 +222,7 @@ function getValues(auth, email, paid, author = null) {
 			// Handle error
 			console.log(err);
 		} else {
-			if (paid === true) {
-				email_paid(email, result.data.values);
-			} else {
-				addDiscordToData(email, result.data.values, author);
-			}
+			return result.values;
 		}
 	});
 }
@@ -170,4 +252,16 @@ function setValues(auth, values, index) {
 			//console.log('%d cells updated.', result.updatedCells);
 		}
 	});
+}
+
+class User {
+	constructor(first_name, last_name, email, password, id, cookies, bots = null) {
+		this.first_name = first_name;
+		this.last_name = last_name;
+		this.email = email;
+		this.password = password;
+		this.id = id;
+		this.cookies = cookies;
+		this.bots = bots;
+	}
 }
