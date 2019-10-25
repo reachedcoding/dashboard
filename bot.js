@@ -44,7 +44,7 @@ app.use('/', function (req, res, next) {
 			let randomNumber = crypto.randomBytes(20).toString('hex');
 			res.cookie('id', randomNumber, { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
 			console.log('cookie created successfully', randomNumber);
-			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Flocalhost&prompt=consent');
+			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Fdashboard.reachedcoding.com&prompt=consent');
 		}
 	} else
 		next();
@@ -60,7 +60,7 @@ app.get('/', async function (req, res, next) {
 				client_secret: client_secret,
 				grant_type: 'authorization_code',
 				scope: 'identify email guilds',
-				redirect_uri: 'https://localhost'
+				redirect_uri: 'https://dashboard.reachedcoding.com'
 			}, 
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
