@@ -74,7 +74,9 @@ app.get('/', async function (req, res, next) {
 			authorization: `${info.token_type} ${info.access_token}`,
 		},
 	}))
-	.then(console.log);
+	.then(data => {
+		console.log(data);
+	});
 		// let options = {
 		// 	form: {
 		// 		code: code,
