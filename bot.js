@@ -13,6 +13,8 @@ const crypto = require("crypto");
 const { google } = require('googleapis');
 const readline = require('readline');
 const request = require('request');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 let spreadsheet_ID, db, users, client_id, client_secret;
 
@@ -53,22 +55,42 @@ app.use('/', function (req, res, next) {
 app.get('/', async function (req, res, next) {
 	let code = req.query.code;
 	if (code) {
-		let options = {
-			form: {
-				code: code,
-				client_id: client_id,
-				client_secret: client_secret,
-				grant_type: 'authorization_code',
-				scope: 'identify email guilds',
-				redirect_uri: 'https://dashboard.reachedcoding.com'
-			}, 
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}
-		await request.post(`https://discordapp.com/api/oauth2/token`, options, function(err, res, body) {
-			console.log(body);
-		});
+		const data = new FormData();
+
+		data.append('client_id', client_id);
+		data.append('client_secret', client_secret);
+		data.append('grant_type', 'authorization_code');
+		data.append('redirect_uri', 'https://dashboard.reachedcoding.com');
+		data.append('scope', 'identify email guilds');
+		data.append('code', code);
+
+		fetch('https://discordapp.com/api/oauth2/token', {
+	method: 'POST',
+	body: data,
+})
+	.then(res => res.json())
+	.then(info => fetch('https://discordapp.com/api/users/@me', {
+		headers: {
+			authorization: `${info.token_type} ${info.access_token}`,
+		},
+	}))
+	.then(console.log);
+		// let options = {
+		// 	form: {
+		// 		code: code,
+		// 		client_id: client_id,
+		// 		client_secret: client_secret,
+		// 		grant_type: 'authorization_code',
+		// 		scope: 'identify email guilds',
+		// 		redirect_uri: 'https://dashboard.reachedcoding.com'
+		// 	},
+		// 	headers: {
+		// 		'Content-Type': 'application/x-www-form-urlencoded'
+		// 	}
+		// }
+		// await request.post(`https://discordapp.com/api/oauth2/token`, options, function (err, res, body) {
+		// 	console.log(body);
+		// });
 	} else {
 
 	}
