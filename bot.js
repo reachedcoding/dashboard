@@ -74,6 +74,7 @@ app.get('/', async function (req, res, next) {
 			authorization: `${info.token_type} ${info.access_token}`,
 		},
 	}))
+	.then(res => res.json())
 	.then(data => {
 		console.log(data);
 	});
