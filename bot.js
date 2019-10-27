@@ -15,6 +15,7 @@ const readline = require('readline');
 const request = require('request');
 const fetch = require('node-fetch');
 const FormData = require('form-data');
+const rp = require('request-promise');
 
 let spreadsheet_ID, db, users, client_id, client_secret;
 
@@ -46,7 +47,7 @@ app.use('/', function (req, res, next) {
 			let randomNumber = crypto.randomBytes(20).toString('hex');
 			res.cookie('id', randomNumber, { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
 			console.log('cookie created successfully', randomNumber);
-			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Fdashboard.reachedcoding.com&prompt=consent');
+			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Flocalhost&prompt=consent');
 		}
 	} else
 		next();
@@ -60,21 +61,27 @@ app.get('/', async function (req, res, next) {
 		data.append('client_id', client_id);
 		data.append('client_secret', client_secret);
 		data.append('grant_type', 'authorization_code');
-		data.append('redirect_uri', 'https://dashboard.reachedcoding.com');
+		data.append('redirect_uri', 'https://localhost');
 		data.append('scope', 'identify email guilds');
 		data.append('code', code);
 
-		let res = await fetch('https://discordapp.com/api/oauth2/token', {
-			method: 'POST',
-			body: data,
+		let response = await rp.post('https://discordapp.com/api/oauth2/token', {
+			form: {
+				client_id: client_id,
+				client_secret: client_secret,
+				grant_type: 'authorization_code',
+				redirect_uri: 'https://localhost',
+				scope: 'identify email guilds',
+				code: code
+			},
 		});
-		let info = res.json();
-		res = await fetch('https://discordapp.com/api/users/@me', {
+		let info = JSON.parse(response);
+		let response2 = await rp.get('https://discordapp.com/api/users/@me', {
 			headers: {
 				authorization: `${info.token_type} ${info.access_token}`,
 			}
 		});
-		let discordUser = res.json();
+		let discordUser = JSON.parse(response2);
 		let id = discordUser.id;
 		let values = await getValues();
 		let found;
@@ -83,12 +90,15 @@ app.get('/', async function (req, res, next) {
 				found = i;
 			}
 		}
-		values.push([id]);
+		//values.push([id]);
 		if (!found) {
 			setValues(auth, values, found + 1);
 		}
-		console.log(data);
-		res.locals.site = data;
+		if (discordUser.code && discordUser.code == 0) {
+			res.locals.site = "Unauthorized";
+		} else {
+			res.locals.site = discordUser;
+		}
 	} else {
 		res.locals.site = false;
 	}
@@ -97,7 +107,7 @@ app.get('/', async function (req, res, next) {
 	if (res.locals.site) {
 		res.send(res.locals.site);
 	} else {
-	res.sendFile(path.join(__dirname, 'site/login.html'));
+		res.sendFile(path.join(__dirname, 'site/login.html'));
 	}
 });
 
