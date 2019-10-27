@@ -64,42 +64,41 @@ app.get('/', async function (req, res, next) {
 		data.append('scope', 'identify email guilds');
 		data.append('code', code);
 
-		fetch('https://discordapp.com/api/oauth2/token', {
-	method: 'POST',
-	body: data,
-})
-	.then(res => res.json())
-	.then(info => fetch('https://discordapp.com/api/users/@me', {
-		headers: {
-			authorization: `${info.token_type} ${info.access_token}`,
-		},
-	}))
-	.then(res => res.json())
-	.then(data => {
+		let res = await fetch('https://discordapp.com/api/oauth2/token', {
+			method: 'POST',
+			body: data,
+		});
+		let info = res.json();
+		res = await fetch('https://discordapp.com/api/users/@me', {
+			headers: {
+				authorization: `${info.token_type} ${info.access_token}`,
+			}
+		});
+		let data = res.json();
+		let id = data.id;
+		let values = await getValues();
+		let found;
+		for (i in values) {
+			if (values[i][0] == id) {
+				found = i;
+			}
+		}
+		values.push([id]);
+		if (!found) {
+			setValues(auth, values, found + 1);
+		}
 		console.log(data);
-	});
-		// let options = {
-		// 	form: {
-		// 		code: code,
-		// 		client_id: client_id,
-		// 		client_secret: client_secret,
-		// 		grant_type: 'authorization_code',
-		// 		scope: 'identify email guilds',
-		// 		redirect_uri: 'https://dashboard.reachedcoding.com'
-		// 	},
-		// 	headers: {
-		// 		'Content-Type': 'application/x-www-form-urlencoded'
-		// 	}
-		// }
-		// await request.post(`https://discordapp.com/api/oauth2/token`, options, function (err, res, body) {
-		// 	console.log(body);
-		// });
+		res.locals.site = data;
 	} else {
-
+		res.locals.site = false;
 	}
 	next();
 }, function (req, res) {
+	if (res.locals.site) {
+		res.send(res.locals.site);
+	} else {
 	res.sendFile(path.join(__dirname, 'site/login.html'));
+	}
 });
 
 // app.get('/', function (req, res, next) {
@@ -239,16 +238,19 @@ function getValues() {
 	const sheets = google.sheets({ version: 'v4', auth });
 	let range = 'Sheet1';
 	let spreadsheetId = spreadsheet_ID;
-	sheets.spreadsheets.values.get({
-		spreadsheetId,
-		range,
-	}, (err, result) => {
-		if (err) {
-			// Handle error
-			console.log(err);
-		} else {
-			return result.values;
-		}
+	return new Promise(function (resolve, reject) {
+		sheets.spreadsheets.values.get({
+			spreadsheetId,
+			range,
+		}, (err, result) => {
+			if (err) {
+				// Handle error
+				console.log(err);
+				reject(err);
+			} else {
+				resolve(result.values);
+			}
+		});
 	});
 }
 function setValues(auth, values, index) {
