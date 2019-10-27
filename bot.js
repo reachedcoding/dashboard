@@ -74,8 +74,8 @@ app.get('/', async function (req, res, next) {
 				authorization: `${info.token_type} ${info.access_token}`,
 			}
 		});
-		let data = res.json();
-		let id = data.id;
+		let discordUser = res.json();
+		let id = discordUser.id;
 		let values = await getValues();
 		let found;
 		for (i in values) {
