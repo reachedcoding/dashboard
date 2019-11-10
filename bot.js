@@ -37,17 +37,21 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser("reachedcoding"));
 app.use(express.static('site'));
+app.use(express.static('site/dashboard'));
+app.use(express.static('site/dashboard/'));
 app.use(express.static('site/images/icons'));
+app.set('view engine', 'ejs');
 
 app.use('/', function (req, res, next) {
 	if (req.method === 'GET' || req.method === 'HEAD') {
 		if (req.cookies.id) {
+
 			next();
 		} else {
 			let randomNumber = crypto.randomBytes(20).toString('hex');
 			res.cookie('id', randomNumber, { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
 			console.log('cookie created successfully', randomNumber);
-			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Fdashboard.reachedcoding.com&prompt=consent');
+			res.redirect('https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=https%3A%2F%2Flocalhost&prompt=consent');
 		}
 	} else
 		next();
@@ -65,12 +69,13 @@ app.get('/', async function (req, res, next) {
 		data.append('scope', 'identify email guilds');
 		data.append('code', code);
 
+		try {
 		let response = await rp.post('https://discordapp.com/api/oauth2/token', {
 			form: {
 				client_id: client_id,
 				client_secret: client_secret,
 				grant_type: 'authorization_code',
-				redirect_uri: 'https://dashboard.reachedcoding.com',
+				redirect_uri: 'https://localhost',
 				scope: 'identify email guilds',
 				code: code
 			},
@@ -90,7 +95,7 @@ app.get('/', async function (req, res, next) {
 				found = i;
 			}
 		}
-		//values.push([id]);
+		values.push([id]);
 		if (!found) {
 			setValues(auth, values, found + 1);
 		}
@@ -99,6 +104,9 @@ app.get('/', async function (req, res, next) {
 		} else {
 			res.locals.site = discordUser;
 		}
+	} catch {
+		res.locals.site = "Unauthorized";
+	}
 	} else {
 		res.locals.site = false;
 	}
@@ -107,7 +115,7 @@ app.get('/', async function (req, res, next) {
 	if (res.locals.site) {
 		res.send(res.locals.site);
 	} else {
-		res.sendFile(path.join(__dirname, 'site/login.html'));
+		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'));
 	}
 });
 
@@ -220,6 +228,7 @@ function authorize(credentials, callback) {
 		auth = oAuth2Client;
 	});
 }
+
 function getNewToken(oAuth2Client, callback) {
 	const authUrl = oAuth2Client.generateAuthUrl({
 		access_type: 'offline',
@@ -258,7 +267,8 @@ function getValues() {
 				console.log(err);
 				reject(err);
 			} else {
-				resolve(result.values);
+				console.log(result.data.values)
+				resolve(result.data.values);
 			}
 		});
 	});
@@ -301,4 +311,8 @@ class User {
 		this.cookies = cookies;
 		this.bots = bots;
 	}
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
