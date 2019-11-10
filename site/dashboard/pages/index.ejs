@@ -5,33 +5,28 @@
 <head>
     <% include ../partials/head %>
 </head>
-<body class="container">
 
 <header>
     <% include ../partials/header %>
 </header>
+<br>
+<font size="+2">
 
-<main>
-<div class="row">
-    <div class="col-sm-8">    
-        <div class="jumbotron">
-            <h1>This is great</h1>
-            <p>Welcome to templating using EJS</p>
-        </div>
-    </div>
-
-    <div class="col-sm-4">        
-        <div class="well">
-            <h3>Look I'm A Sidebar!</h3>
-        </div>
-    </div>
-
-</div>
-</main>
-
+    <table style="border:1px solid black;margin-left:auto;margin-right:auto;">
+        <% values.forEach(function(value) { %>
+            <tr>
+            <th><%= value.key %></th>
+            <th><%= value.value %></th>
+        </tr>
+        <% }); %>
+    </table>
+    <br>
+</font>
 <footer>
+        <font size="+2">
+
     <% include ../partials/footer %>
+        </font>
 </footer>
 
-</body>
 </html>

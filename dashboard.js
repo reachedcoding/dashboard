@@ -58,6 +58,7 @@ app.use('/*', function (req, res, next) {
 });
 
 app.get('/', async function (req, res, next) {
+	let discordUser;
 	try {
 		let a = req.cookies.a;
 		let access_token = decrypt(a);
@@ -66,17 +67,29 @@ app.get('/', async function (req, res, next) {
 				authorization: `Bearer ${access_token}`,
 			}
 		}).catch(e => { });
-		let discordUser = JSON.parse(response2);
+		discordUser = JSON.parse(response2);
+		res.locals.site = discordUser;
+		let values = [];
+		for (var key in discordUser) {
+			if (discordUser.hasOwnProperty(key)) {
+				values.push({"key": key, "value": discordUser[key]})
+			}
+		}
+		res.locals.ejs = values;
 		res.locals.site = discordUser;
 		next();
 	} catch (e) {
 		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=${login_url}&prompt=consent`);
 	}
+
 }, function (req, res) {
-	if (res.locals.site) {
+	if (!res.locals.ejs) {
 		res.send(res.locals.site);
 	} else {
-		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'));
+		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
+	{
+		values: res.locals.ejs
+	});
 	}
 });
 
