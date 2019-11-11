@@ -160,10 +160,6 @@ app.get('/logout', async function (req, res, next) {
 app.get('/home', function (req,res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
 });
-
-app.get('/*', function(req,res) {
-	res.redirect('/home');
-});
 // app.get('/', function (req, res, next) {
 // 	let cookie;
 // 	console.log('Got');
