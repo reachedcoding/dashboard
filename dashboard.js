@@ -146,8 +146,8 @@ app.get('/login', async function (req, res, next) {
 });
 
 app.get('/logout', async function (req, res, next) {
-	req.cookies.set('a', {expires: Date.now()});
-	req.cookies.set('r', {expires: Date.now()});
+	res.clearCookie("a");
+	res.clearCookie("r");
 }, function (req,res) {
 	res.redirect('/');
 });
