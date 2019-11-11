@@ -51,8 +51,8 @@ app.use('/*', function (req, res, next) {
 			if (code)
 				next();
 			else
-				res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=${login_url}&prompt=consent`);
-		}
+				res.redirect('/home');
+			}
 	} else
 		next();
 });
@@ -97,6 +97,7 @@ app.get('/login', async function (req, res, next) {
 	let code = req.query.code;
 	if (code) {
 		try {
+			res.locals.code = true;
 			let response = await rp.post('https://discordapp.com/api/oauth2/token', {
 				form: {
 					client_id: client_id,
@@ -133,11 +134,14 @@ app.get('/login', async function (req, res, next) {
 			res.locals.site = "An Error has Occured";
 		}
 	} else {
-		res.locals.site = "Unauthorized";
+		res.locals.code = false;
 	}
 	next();
 }, function (req, res) {
-	res.redirect('/');
+	if (res.locals.code)
+		res.redirect('/')
+	else
+		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=${login_url}&prompt=consent`);
 	// if (res.locals.site) {
 	// 	res.send(res.locals.site);
 	// } else {
@@ -151,6 +155,14 @@ app.get('/logout', async function (req, res, next) {
 	next();
 }, function (req,res) {
 	res.redirect('/');
+});
+
+app.get('/home', function (req,res) {
+	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
+});
+
+app.get('/*', function(req,res) {
+	res.redirect('/home');
 });
 // app.get('/', function (req, res, next) {
 // 	let cookie;
