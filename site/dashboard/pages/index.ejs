@@ -19,12 +19,14 @@
                 <th scope="col">Value</th>
             </tr>
         </thead>
+        <tbody>
         <% values.forEach(function(value) { %>
             <tr>
             <th scope="row"><%= value.key %></th>
             <th><%= value.value %></th>
         </tr>
         <% }); %>
+        </tbody>
     </table>
     <br>
 </font>
