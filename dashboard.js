@@ -148,6 +148,7 @@ app.get('/login', async function (req, res, next) {
 app.get('/logout', async function (req, res, next) {
 	res.clearCookie("a");
 	res.clearCookie("r");
+	next();
 }, function (req,res) {
 	res.redirect('/');
 });
