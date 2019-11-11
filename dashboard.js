@@ -51,7 +51,7 @@ app.use('/', function (req, res, next) {
 			if (code)
 				next();
 			else
-				res.redirect('/home');
+				next();
 			}
 	} else
 		next();
