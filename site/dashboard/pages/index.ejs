@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <% include ../partials/head %>
 </head>
@@ -11,22 +12,29 @@
 </header>
 <br>
 <font size="+2">
+    <div class="alert alert-success" role="alert">
 
-    <table style="border:1px solid black;margin-left:auto;margin-right:auto;">
+    <div class="container">
         <% values.forEach(function(value) { %>
-            <tr>
-            <th><%= value.key %></th>
-            <th><%= value.value %></th>
-        </tr>
-        <% }); %>
-    </table>
-    <br>
+        <div class="row">
+            <div class="col-sm">
+                <%= value.key %></div>
+            <div class="col-sm">
+                <%= value.value %>
+                /div>
+            </div>
+        </div>
+
+            <% }); %>
+    </div></div>
+
+        <br>
 </font>
 <footer>
-        <font size="+2">
+    <font size="+2">
 
-    <% include ../partials/footer %>
-        </font>
+        <% include ../partials/footer %>
+    </font>
 </footer>
 
 </html>
