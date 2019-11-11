@@ -12,7 +12,13 @@
 <br>
 <font size="+2">
 
-    <table style="border:1px solid black;margin-left:auto;margin-right:auto;" class="table-striped table-dark table-hover">
+    <table style="border:1px solid black;margin-left:auto;margin-right:auto;" class="table table-hover table-dark">
+        <thead>
+            <tr>
+                <th scope="col">Key</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
         <% values.forEach(function(value) { %>
             <tr>
             <th scope="row"><%= value.key %></th>
