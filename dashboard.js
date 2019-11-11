@@ -79,7 +79,7 @@ app.get('/', async function (req, res, next) {
 		res.locals.site = discordUser;
 		next();
 	} catch (e) {
-		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=${login_url}&prompt=consent`);
+		res.redirect(`/home`);
 	}
 
 }, function (req, res) {
