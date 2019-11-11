@@ -145,6 +145,12 @@ app.get('/login', async function (req, res, next) {
 	// }
 });
 
+app.get('/logout', async function (req, res, next) {
+	req.cookies.set('a', {expires: Date.now()});
+	req.cookies.set('r', {expires: Date.now()});
+}, function (req,res) {
+	res.redirect('/');
+});
 // app.get('/', function (req, res, next) {
 // 	let cookie;
 // 	console.log('Got');
