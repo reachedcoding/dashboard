@@ -68,6 +68,7 @@ app.get('/', async function (req, res, next) {
 			}
 		}).catch(e => { });
 		discordUser = JSON.parse(response2);
+		console.log(`${discordUser.username}#${discordUser.discriminator} logged in!`);
 		res.locals.site = discordUser;
 		let values = [];
 		for (var key in discordUser) {
