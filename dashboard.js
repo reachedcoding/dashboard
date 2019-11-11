@@ -79,7 +79,7 @@ app.get('/', async function (req, res, next) {
 		res.locals.site = discordUser;
 		next();
 	} catch (e) {
-		res.redirect(`/home`);
+		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
 	}
 
 }, function (req, res) {
