@@ -42,7 +42,7 @@ app.use(express.static('site/images/icons'));
 app.set('view engine', 'ejs');
 
 const login_url = encodeURI("https://dashboard.reachedcoding.com/login");
-app.use('/*', function (req, res, next) {
+app.use('/', function (req, res, next) {
 	if (req.method === 'GET' || req.method === 'HEAD') {
 		if (req.cookies.a && req.cookies.r) {
 			next();
