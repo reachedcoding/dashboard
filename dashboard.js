@@ -16,7 +16,12 @@ const request = require('request');
 const fetch = require('node-fetch');
 const FormData = require('form-data');
 const rp = require('request-promise');
+const MongoClient = require("mongodb").MongoClient;
+const ObjectId = require("mongodb").ObjectID;
+
 let spreadsheet_ID, db, users, client_id, client_secret;
+const CONNECTION_URL = 'mongodb+srv://SERVER_ACCESS:4141@reachedio-server-dlyzm.mongodb.net/test?retryWrites=true&w=majority';
+const DATABASE_NAME = "ReachedIO";
 
 fs.readFile('settings.json', (err, content) => {
 	if (err) return console.log('Error loading settings:', err);
@@ -161,39 +166,16 @@ app.get('/logout', async function (req, res, next) {
 app.get('/home', function (req,res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
 });
-// app.get('/', function (req, res, next) {
-// 	let cookie;
-// 	console.log('Got');
-// 	cookie, res = checkCookies(req, res);
-// 	next();
-// }, function (req, res) {
-// 	res.sendFile(path.join(__dirname, 'site/login.html'));
-// });
 
-// app.get('/register', function (req, res, next) {
-// 	let firstName = req.query.firstName;
-// 	let lastName = req.query.lastName;
-// 	let email = req.query.email;
-// 	let pass = req.query.pass;
-// 	if (firstName, lastName, email, pass) {
-// 		let user = new User(firstName, lastName, email, pass, crypto.randomBytes(20).toString('hex'), null, null);
-// 		users.push(user);
-// 		res.locals.user = user;
-// 	} else {
-// 		res.locals.user = false;
-// 	}
-// }, function (req, res) {
-// 	let user = res.locals.user;
-// 	if (!user) {
-// 		res.sendFile(path.join(__dirname, 'site/register.html'));
-// 	} else {
-// 		//res.redirect('/')
-// 	}
-// });
-
-// app.post('/', function (req, res) {
-// 	console.log('Post a res');
-// });
+app.get('/test', async function (req,res) {
+	let id = await getDiscordId(req);
+	collection.find({"id": id}).toArray((error, result) => {
+        if(error) {
+            return res.status(500).send(error);
+        }
+        res.send(result);
+    });
+});
 
 // EXPRESS HELPER FUNCTIONS
 
@@ -214,51 +196,34 @@ function decrypt(text) {
 	return dec;
 }
 
-function checkCookies(req, res) {
-	let cookie = req.cookies.id;
-	if (cookie === undefined) {
-		// no: set a new cookie
-		let randomNumber = crypto.randomBytes(20).toString('hex');
-		res.cookie('id', randomNumber, { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
-		console.log('cookie created successfully', randomNumber);
-		return false, res;
-	} else {
-		console.log('cookie exists', cookie);
-		return cookie, res;
-	}
-}
-
-function checkCredentials(res) {
-	let username = res.locals.username;
-	let password = res.locals.password;
-	return username, password;
-}
-
-function authenticate() {
-	let spreadsheet = getValues();
-	for (var i = 1; i < spreadsheet.length; i++) {
-		if (username.toLowerCase() == spreadsheet[i][0].toLowerCase()) {
-			if (password == spreadsheet[i][1]) {
-				return i, spreadsheet;
+async function getDiscordId(req) {
+	let a = req.cookies.a;
+		let access_token = decrypt(a);
+		let response2 = await rp.get('https://discordapp.com/api/users/@me', {
+			headers: {
+				authorization: `Bearer ${access_token}`,
 			}
-		}
-	}
-	return false;
-}
-
-function saveDatabase() {
-	db.users = users;
-	fs.writeFile('db.json', JSON.stringify(db, null, 2), function (err) {
-		if (err) return console.log(err);
-	});
+		}).catch(e => { });
+		discordUser = JSON.parse(response2);
+		return discordUser.id;
 }
 
 // EXPRESS SERVER
+var database, collection;
 
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(80);
+httpServer.listen(80, () => {
+	MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
+        if(error) {
+            throw error;
+        }
+        database = client.db(DATABASE_NAME);
+        collection = database.collection("admin");
+        console.log("Connected to `" + DATABASE_NAME + "`!");
+    });
+});
 httpsServer.listen(443);
 
 // GOOGLE SHEETS INTEGRATION
