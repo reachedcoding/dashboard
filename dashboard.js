@@ -183,6 +183,7 @@ app.get('/home', function (req,res) {
 
 app.get('/test', async function (req,res) {
 	let id = await getDiscordId(req);
+	if (id)
 	collection.find({"id": id}).toArray((error, result) => {
         if(error) {
             return res.status(500).send(error);
@@ -198,7 +199,9 @@ app.get('/test', async function (req,res) {
 			res.redirect('/test');
 		} else
         	res.send(result);
-    });
+	});
+	else
+		res.redirect('/');
 });
 
 // EXPRESS HELPER FUNCTIONS
@@ -221,6 +224,7 @@ function decrypt(text) {
 }
 
 async function getDiscordId(req) {
+	try {
 	let a = req.cookies.a;
 		let access_token = decrypt(a);
 		let response2 = await rp.get('https://discordapp.com/api/users/@me', {
@@ -230,6 +234,9 @@ async function getDiscordId(req) {
 		}).catch(e => { });
 		discordUser = JSON.parse(response2);
 		return discordUser.id;
+	} catch {
+		return null;
+	}
 }
 
 // EXPRESS SERVER
