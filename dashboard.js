@@ -196,8 +196,8 @@ app.get('/test', async function (req,res) {
 				}
 			});
 			res.redirect('back');
-		}
-        res.send(result);
+		} else
+        	res.send(result);
     });
 });
 
