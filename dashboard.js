@@ -194,8 +194,8 @@ app.get('/test', async function (req,res) {
 				if(error) {
 					return response.status(500).send(error);
 				}
-				response.send(result.result);
 			});
+			res.redirect('back');
 		}
         res.send(result);
     });
@@ -245,7 +245,7 @@ httpServer.listen(80, () => {
         }
         database = client.db(DATABASE_NAME);
         collection = database.collection("admin");
-        console.log("Connected to `" + DATABASE_NAME + "`!");
+        //console.log("Connected to `" + DATABASE_NAME + "`!");
     });
 });
 httpsServer.listen(443);
