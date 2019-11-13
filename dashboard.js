@@ -198,14 +198,23 @@ app.get('/test', async function (req, res) {
 						}
 					});
 					res.redirect('/test');
-				} else
-					res.send(result);
+				} else {
+					let values = [];
+					for (var key in result[0]) {
+						if (result[0].hasOwnProperty(key)) {
+							values.push({ "key": key, "value": result[0][key] })
+						}
+					}
+					res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
+						{
+							values: values
+						});
+				}
 			});
 		else
 			res.redirect('/');
 	} catch {
-		res.redirect('/')
-			;
+		res.redirect('/');
 	}
 });
 
