@@ -195,7 +195,7 @@ app.get('/test', async function (req,res) {
 					return response.status(500).send(error);
 				}
 			});
-			res.redirect('back');
+			res.redirect('/test');
 		} else
         	res.send(result);
     });
