@@ -23,6 +23,20 @@ let spreadsheet_ID, db, users, client_id, client_secret;
 const CONNECTION_URL = 'mongodb+srv://SERVER_ACCESS:4141@reachedio-server-dlyzm.mongodb.net/test?retryWrites=true&w=majority';
 const DATABASE_NAME = "ReachedIO";
 
+let adminObj = {
+	id: "",
+	next_payment: "",
+	stripe_token: "",
+	first_login: ""
+};
+
+let userObj = {
+	id: "",
+	next_payment: "",
+	stripe_token: "",
+	first_login: ""
+};
+
 fs.readFile('settings.json', (err, content) => {
 	if (err) return console.log('Error loading settings:', err);
 	var settings = JSON.parse(content);
@@ -172,7 +186,17 @@ app.get('/test', async function (req,res) {
 	collection.find({"id": id}).toArray((error, result) => {
         if(error) {
             return res.status(500).send(error);
-        }
+		}
+		if (result.length == 0) {
+			userObj.id = id;
+			userObj.first_login = new Date();
+			collection.insert(userObj, (error, result) => {
+				if(error) {
+					return response.status(500).send(error);
+				}
+				response.send(result.result);
+			});
+		}
         res.send(result);
     });
 });
@@ -225,117 +249,6 @@ httpServer.listen(80, () => {
     });
 });
 httpsServer.listen(443);
-
-// GOOGLE SHEETS INTEGRATION
-
-var oAuth2Client;
-let auth;
-
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const TOKEN_PATH = 'token.json';
-
-// Load client secrets from a local file.
-fs.readFile('credentials.json', (err, content) => {
-	if (err) return console.log('Error loading client secret file:', err);
-	// Authorize a client with credentials, then call the Google Sheets API.
-	authorize(JSON.parse(content), getValues);
-});
-function authorize(credentials, callback) {
-	const { client_secret, client_id, redirect_uris } = credentials.installed;
-	oAuth2Client = new google.auth.OAuth2(
-		client_id, client_secret, redirect_uris[0]);
-
-	// Check if we have previously stored a token.
-	fs.readFile(TOKEN_PATH, (err, token) => {
-		if (err) return getNewToken(oAuth2Client, callback);
-		oAuth2Client.setCredentials(JSON.parse(token));
-		auth = oAuth2Client;
-	});
-}
-
-function getNewToken(oAuth2Client, callback) {
-	const authUrl = oAuth2Client.generateAuthUrl({
-		access_type: 'offline',
-		scope: SCOPES,
-	});
-	console.log('Authorize this app by visiting this url:', authUrl);
-	const rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
-	rl.question('Enter the code from that page here: ', (code) => {
-		rl.close();
-		oAuth2Client.getToken(code, (err, token) => {
-			if (err) return console.error('Error while trying to retrieve access token', err);
-			oAuth2Client.setCredentials(token);
-			// Store the token to disk for later program executions
-			fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-				if (err) console.error(err);
-				console.log('Token stored to', TOKEN_PATH);
-			});
-			callback(oAuth2Client);
-		});
-	});
-}
-function getValues() {
-	const sheets = google.sheets({ version: 'v4', auth });
-	let range = 'Sheet1';
-	let spreadsheetId = spreadsheet_ID;
-	return new Promise(function (resolve, reject) {
-		sheets.spreadsheets.values.get({
-			spreadsheetId,
-			range,
-		}, (err, result) => {
-			if (err) {
-				// Handle error
-				console.log(err);
-				reject(err);
-			} else {
-				console.log(result.data.values)
-				resolve(result.data.values);
-			}
-		});
-	});
-}
-function setValues(auth, values, index) {
-	const sheets = google.sheets({ version: 'v4', auth });
-	const resource = {
-		values,
-	};
-	let range;
-	if (index) {
-		range = 'Sheet1!' + index + ':' + index;
-	} else {
-		range = 'Sheet1!A1:ZZ';
-	}
-	let spreadsheetId = spreadsheet_ID;
-	var valueInputOption = 'RAW';
-	sheets.spreadsheets.values.update({
-		spreadsheetId,
-		range,
-		valueInputOption,
-		resource,
-	}, (err, result) => {
-		if (err) {
-			// Handle error
-			console.log(err);
-		} else {
-			//console.log('%d cells updated.', result.updatedCells);
-		}
-	});
-}
-
-class User {
-	constructor(first_name, last_name, email, password, id, cookies, bots = null) {
-		this.first_name = first_name;
-		this.last_name = last_name;
-		this.email = email;
-		this.password = password;
-		this.id = id;
-		this.cookies = cookies;
-		this.bots = bots;
-	}
-}
 
 async function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
