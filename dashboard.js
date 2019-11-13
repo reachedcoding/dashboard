@@ -71,7 +71,7 @@ app.use('/', function (req, res, next) {
 				next();
 			else
 				next();
-			}
+		}
 	} else
 		next();
 });
@@ -92,7 +92,7 @@ app.get('/', async function (req, res, next) {
 		let values = [];
 		for (var key in discordUser) {
 			if (discordUser.hasOwnProperty(key)) {
-				values.push({"key": key, "value": discordUser[key]})
+				values.push({ "key": key, "value": discordUser[key] })
 			}
 		}
 		res.locals.ejs = values;
@@ -107,9 +107,9 @@ app.get('/', async function (req, res, next) {
 		res.send(res.locals.site);
 	} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
-	{
-		values: res.locals.ejs
-	});
+			{
+				values: res.locals.ejs
+			});
 	}
 });
 
@@ -173,35 +173,40 @@ app.get('/logout', async function (req, res, next) {
 	res.clearCookie("a");
 	res.clearCookie("r");
 	next();
-}, function (req,res) {
+}, function (req, res) {
 	res.redirect('/');
 });
 
-app.get('/home', function (req,res) {
+app.get('/home', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
 });
 
-app.get('/test', async function (req,res) {
-	let id = await getDiscordId(req);
-	if (id)
-	collection.find({"id": id}).toArray((error, result) => {
-        if(error) {
-            return res.status(500).send(error);
-		}
-		if (result.length == 0) {
-			userObj.id = id;
-			userObj.first_login = new Date();
-			collection.insert(userObj, (error, result) => {
-				if(error) {
-					return response.status(500).send(error);
+app.get('/test', async function (req, res) {
+	try {
+		let id = await getDiscordId(req);
+		if (id)
+			collection.find({ "id": id }).toArray((error, result) => {
+				if (error) {
+					return res.status(500).send(error);
 				}
+				if (result.length == 0) {
+					userObj.id = id;
+					userObj.first_login = new Date();
+					collection.insert(userObj, (error, result) => {
+						if (error) {
+							return response.status(500).send(error);
+						}
+					});
+					res.redirect('/test');
+				} else
+					res.send(result);
 			});
-			res.redirect('/test');
-		} else
-        	res.send(result);
-	});
-	else
-		res.redirect('/');
+		else
+			res.redirect('/');
+	} catch {
+		res.redirect('/')
+			;
+	}
 });
 
 // EXPRESS HELPER FUNCTIONS
@@ -225,7 +230,7 @@ function decrypt(text) {
 
 async function getDiscordId(req) {
 	try {
-	let a = req.cookies.a;
+		let a = req.cookies.a;
 		let access_token = decrypt(a);
 		let response2 = await rp.get('https://discordapp.com/api/users/@me', {
 			headers: {
@@ -247,13 +252,13 @@ var httpsServer = https.createServer(credentials, app);
 
 httpServer.listen(80, () => {
 	MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
-        if(error) {
-            throw error;
-        }
-        database = client.db(DATABASE_NAME);
-        collection = database.collection("admin");
-        //console.log("Connected to `" + DATABASE_NAME + "`!");
-    });
+		if (error) {
+			throw error;
+		}
+		database = client.db(DATABASE_NAME);
+		collection = database.collection("admin");
+		//console.log("Connected to `" + DATABASE_NAME + "`!");
+	});
 });
 httpsServer.listen(443);
 
