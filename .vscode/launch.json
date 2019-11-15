@@ -7,15 +7,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program 2",
-            "program": "${workspaceFolder}/dashboard.js"
-        },
-        
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\dashboard.js"
+            "program": "${workspaceFolder}/dashboard.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
         }
     ]
 }
