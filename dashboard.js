@@ -227,18 +227,18 @@ app.get('/test', async function (req, res) {
 
 // ENCRYTION/DECRYPTION LOGIC
 
-var algorithm = 'aes-256-ctr',
+var algorithm = 'aes192',
 	password = 'd6F3Efeq';
 
 function encrypt(text) {
-	var cipher = crypto.createCipher(algorithm, password)
+	var cipher = crypto.createCipheriv(algorithm, password, null)
 	var crypted = cipher.update(text, 'utf8', 'hex')
 	crypted += cipher.final('hex');
 	return crypted;
 }
 
 function decrypt(text) {
-	var decipher = crypto.createDecipher(algorithm, password)
+	var decipher = crypto.createDecipheriv(algorithm, password, null)
 	var dec = decipher.update(text, 'hex', 'utf8')
 	dec += decipher.final('utf8');
 	return dec;
