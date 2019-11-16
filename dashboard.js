@@ -13,6 +13,7 @@ var cookieParser = require('cookie-parser')
 const crypto = require("crypto");
 const rp = require('request-promise');
 const MongoClient = require("mongodb").MongoClient;
+require('log-timestamp');
 
 // DATABASE INFO
 let db, client_id, client_secret;
