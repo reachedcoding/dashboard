@@ -17,6 +17,7 @@ const Database = require('./database');
 
 // DATABASE INFO
 let db, client_id, client_secret;
+let rootUrl = "https://www.reachedcoding.com/";
 
 // TEMPLATE FOR ADMIN USER OBJECT
 let adminObj = {
@@ -101,7 +102,9 @@ app.get('/', async function (req, res, next) {
 		res.locals.site = discordUser;
 		next();
 	} catch (e) {
-		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
+		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+			rootUrl: rootUrl
+		});
 	}
 
 }, function (req, res) {
@@ -178,7 +181,9 @@ app.get('/logout', async function (req, res, next) {
 
 // NOT REALLY IMPLEMENTED YET BUT MAY SERVE AS A HOMEPAGE
 app.get('/home', function (req, res) {
-	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
+	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+		rootUrl: rootUrl
+	});
 });
 
 // TEST DOMAIN QUERY
@@ -213,7 +218,9 @@ app.get('/test', async function (req, res) {
 });
 
 app.get('/admin', async function (req, res) {
-	res.render(path.join(__dirname, 'site/dashboard/pages/admin_home.ejs'));
+	res.render(path.join(__dirname, 'site/dashboard/pages/admin_home.ejs'), {
+		rootUrl: rootUrl
+	});
 });
 
 app.post('/cancel', async function (req,res) {

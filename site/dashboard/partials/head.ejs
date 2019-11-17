@@ -10,12 +10,20 @@
 <title>Reached IO</title>
 
 <!-- Custom fonts for this theme -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script><link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
 <style type="text/css">
-    body { background: rgb(59, 59, 59) !important; } /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
- </style>
+    body {
+        background: rgb(59, 59, 59) !important;
+    }
+
+    /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
+</style>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143775012-1"></script>
 <script>
@@ -27,19 +35,32 @@
 </script>
 
 <style>
-    back { background: rgb(59, 59, 59) !important; } /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
+    back {
+        background: rgb(59, 59, 59) !important;
+    }
+
+    /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
     footer {
-    position: fixed;
-    height: 100px;
-    bottom: 0;
-    width: 100%;
-}
-.center-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  min-height: 100vh;
-}
-            </style>
+        position: fixed;
+        height: 100px;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .center-screen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 60vh;
+    }
+
+    .image-cropper {
+        width: auto;
+        height: auto;
+        position: relative;
+        overflow: visible;
+        border-radius: 100%;
+    }
+</style>
