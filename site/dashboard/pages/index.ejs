@@ -9,11 +9,14 @@
 <header>
     <% include ../partials/header %>
 </header>
-<font size="+2">
+<div class="bg" style="min-height: 100vh;">
+    <br>
+    
+    <div class="table-responsive" style="border: none;">
 
-    <table style="border:1px solid black;margin-left:auto;margin-right:auto;" class="table table-hover table-dark">
+    <table style="margin-top: 1rem;width: 90%;  margin: auto;" class="table table-hover table-dark h5 table-curved">
         <thead>
-            <tr>
+            <tr style="border-top: none;">
                 <th scope="col">Key</th>
                 <th scope="col">Value</th>
             </tr>
@@ -27,12 +30,7 @@
         <% }); %>
         </tbody>
     </table>
-</font>
-<footer>
-        <font size="+2">
-
+    </div>
     <% include ../partials/footer %>
-        </font>
-</footer>
-
+</div>
 </html>
