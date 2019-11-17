@@ -201,9 +201,11 @@ app.get('/test', async function (req, res) {
 				res.redirect('/test');
 			} else {
 				let values = [];
+				let index = 1;
 				for (var key in user) {
 					if (user.hasOwnProperty(key)) {
-						values.push({ "key": key, "value": user[key] })
+						values.push({ "index": index, "key": key, "value": user[key] });
+						index++;
 					}
 				}
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
