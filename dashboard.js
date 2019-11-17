@@ -12,13 +12,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser')
 const crypto = require("crypto");
 const rp = require('request-promise');
-const MongoClient = require("mongodb").MongoClient;
 require('log-timestamp');
+const Database = require('./database');
 
 // DATABASE INFO
 let db, client_id, client_secret;
-const CONNECTION_URL = 'mongodb+srv://SERVER_ACCESS:4141@reachedio-server-dlyzm.mongodb.net/test?retryWrites=true&w=majority';
-const DATABASE_NAME = "ReachedIO";
 
 // TEMPLATE FOR ADMIN USER OBJECT
 let adminObj = {
@@ -183,46 +181,43 @@ app.get('/home', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'));
 });
 
-// TEST DOMAIN QUERY -- USED TO TEST MONGODB DATABASE FUNCTIONALITY AND INTEGRATION
+// TEST DOMAIN QUERY
 app.get('/test', async function (req, res) {
 	try {
 		// GET DISCORD ID FROM COOKIES AND DISCORD API REQUEST
 		let id = await getDiscordId(req);
-		if (id)
+		if (id) {
 			// FIND AN ID IN THE DATABASE WITH THE SAME ID AND RETURN ALL DATABASE DATA FOR THAT KEY
 			// IF NOT FOUND, ADD TO THE DATABASE AND REFRESH
-			collection.find({ "id": id }).toArray((error, result) => {
-				if (error) {
-					return res.status(500).send(error);
-				}
-				// IF ID NOT FOUND
-				if (result.length == 0) {
-					userObj.id = id;
-					userObj.first_login = new Date();
-					collection.insert(userObj, (error, result) => {
-						if (error) {
-							return response.status(500).send(error);
-						}
-					});
-					res.redirect('/test');
-				} else {
-					let values = [];
-					for (var key in result[0]) {
-						if (result[0].hasOwnProperty(key)) {
-							values.push({ "key": key, "value": result[0][key] })
-						}
+			let user = await db.get_user(id);
+			if (!user) {
+				res.redirect('/test');
+			} else {
+				let values = [];
+				for (var key in user) {
+					if (user.hasOwnProperty(key)) {
+						values.push({ "key": key, "value": user[key] })
 					}
-					res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
-						{
-							values: values
-						});
 				}
-			});
+				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
+					{
+						values: values
+					});
+			}
+		}
 		else
 			res.redirect('/');
-	} catch {
+	} catch (e) {
 		res.redirect('/');
 	}
+});
+
+app.get('/admin', async function (req, res) {
+	res.render(path.join(__dirname, 'site/dashboard/pages/admin_home.ejs'));
+});
+
+app.post('/cancel', async function (req,res) {
+
 });
 
 // ENCRYTION/DECRYPTION LOGIC
@@ -269,18 +264,10 @@ var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
 // LISTEN ON HTTP AND HTTPS PORTS AND SERVE
-httpServer.listen(80, () => {
-	// MONGODB INTEGRATION - ESTABLISHES CONNECTION WITH THE DATABASE
-	MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, (error, client) => {
-		if (error) {
-			throw error;
-		}
-		database = client.db(DATABASE_NAME);
-		collection = database.collection("admin");
-		//console.log("Connected to `" + DATABASE_NAME + "`!");
-	});
+httpsServer.listen(443, () => {
+	db = new Database();
 });
-httpsServer.listen(443);
+httpServer.listen(80);
 
 // HELPFUL FUNCTION IF EVER NEED TO SLEEP
 async function sleep(ms) {
