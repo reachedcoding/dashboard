@@ -6,27 +6,29 @@
 <head>
   <% include ../partials/head %>
 </head>
-<div class="container-fluid">
+<div class="bg" style="min-height: 100vh;">
+  <div class="container-fluid">
     <a class="navbar-brand" href=<%- rootUrl -%>>
-  <img src="./../images/logo.svg" class="float-left img-fluid image-cropper" style="width: 5rem; margin: 2rem;">
-</a>
-</div>
+      <img src="./../images/logo.svg" class="float-left img-fluid image-cropper" style="width: 5rem; margin: 2rem;">
+    </a>
+  </div>
 
-<div class="center-screen">
-  <div class="card text-center text-white bg-dark mb-4 mx-auto h4" style="display: flex;justify-content: center;width: 20rem;">
+  <div class="center-screen" style="min-height: 50vh;">
+    <div class="card text-center text-white bg-dark mb-4 mx-auto h4"
+      style="display: flex;justify-content: center;width: 20rem;">
       <div class="card-header">
         <b>Login with Discord</b>
       </div>
       <div class="card-body">
-        <a href='/login' class="btn" style="background-color: #2C2F33;"><img src="../images/discord.png" width="180rem" /></a>
+        <a href='/login' class="btn" style="background-color: #2C2F33;"><img src="../images/discord.png"
+            width="180rem" /></a>
       </div>
+    </div>
   </div>
-</div>
-<footer>
-  <font size="+2">
 
-    <% include ../partials/footer %>
-  </font>
-</footer>
+  <footer>
+      <% include ../partials/footer %>
+  </footer>
+</div>
 
 </html>
