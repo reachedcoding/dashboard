@@ -27,28 +27,19 @@
 </script>
 
 <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-    
-        .container-fluid,
-        .row {
-            height: 100%;
-            background-color: grey
-        }
-    
-        .board-container {
-            padding: 40px;
-            box-sizing: border-box
-        }
-    
-        .board {
-            background-color: teal;
-            height: 100%;
-            padding: 40px;
-        }
-    </style>
-    
+    back { background: rgb(59, 59, 59) !important; } /* Adding !important forces the browser to overwrite the default style applied by Bootstrap */
+    footer {
+    position: fixed;
+    height: 100px;
+    bottom: 0;
+    width: 100%;
+}
+.center-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
+}
+            </style>
