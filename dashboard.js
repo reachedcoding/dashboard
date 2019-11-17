@@ -92,9 +92,11 @@ app.get('/', async function (req, res, next) {
 		console.log(`${discordUser.username}#${discordUser.discriminator} logged in!`);
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
 		let values = [];
+		let index = 1;
 		for (var key in discordUser) {
 			if (discordUser.hasOwnProperty(key)) {
-				values.push({ "key": key, "value": discordUser[key] })
+				values.push({ "index": index, "key": key, "value": discordUser[key] });
+				index++;
 			}
 		}
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
