@@ -201,7 +201,7 @@ app.get('/test', async function (req, res) {
 			} else {
 				let values = [];
 				let index = 1;
-				values.push({ "index": index,"discord_id": id, "next_date": new Date(), "sub_id": user.sub_id, "cust_id": user.cust_id,});
+				values.push({ "index": index,"discord_id": id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id,});
 
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 					{
