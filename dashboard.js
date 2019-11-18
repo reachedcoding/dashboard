@@ -106,7 +106,7 @@ app.get('/', async function (req, res, next) {
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
 			rootUrl: rootUrl
 		});
-	}
+	}    
 
 }, function (req, res) {
 	// CHECKS WHETHER DATA HAS BEEN RECEIVED AND SHOWS IT OR SHOWS THE MAIN LOGIN SCREEN
@@ -201,7 +201,7 @@ app.get('/test', async function (req, res) {
 			} else {
 				let values = [];
 				let index = 1;
-				values.push({ "index": index,"discord_id": id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id,});
+				values.push({ "index": index,"discord_id": user.discord_id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name});
 
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 					{
