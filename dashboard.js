@@ -208,7 +208,6 @@ app.get('/test', async function (req, res) {
 						index++;
 					}
 				}
-				console.log(values);
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 					{
 						values: values
