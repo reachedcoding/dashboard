@@ -199,13 +199,12 @@ app.get('/test', async function (req, res) {
 			if (!user) {
 				res.redirect('/test');
 			} else {
-				let values = [];
 				let index = 1;
-				values.push({ "index": index,"discord_id": user.discord_id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name});
+				let value = { "index": index,"discord_id": user.discord_id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name };
 
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 					{
-						values: values
+						value: value
 					});
 			}
 		}
