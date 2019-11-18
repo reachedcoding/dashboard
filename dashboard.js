@@ -201,13 +201,8 @@ app.get('/test', async function (req, res) {
 			} else {
 				let values = [];
 				let index = 1;
-				for (var key in user) {
-					if (user.hasOwnProperty(key)) {
-						values.push({ "index": index,"id": index, "next_date": key, "sub_id": user[key], "cust_id": user[key],
-						"Customer ID": ""});
+				values.push({ "index": index,"discord_id": id, "next_date": new Date(), "sub_id": user.sub_id, "cust_id": user.cust_id,});
 
-					}
-				}
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 					{
 						values: values
