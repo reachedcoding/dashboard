@@ -22,17 +22,16 @@ let rootUrl = "https://www.reachedcoding.com/";
 // TEMPLATE FOR ADMIN USER OBJECT
 let adminObj = {
 	id: "",
-	next_payment: "",
-	stripe_token: "",
-	first_login: ""
+	type: ""
 };
 
 // TEMPLATE FOR REGULAR USER OBJECT
 let userObj = {
-	id: "",
+	discord_id: "",
 	next_payment: "",
-	stripe_token: "",
-	first_login: ""
+	sub_id: "",
+	cust_id: "",
+	type: ""
 };
 
 // LOAD CONFIGURATION
@@ -204,8 +203,9 @@ app.get('/test', async function (req, res) {
 				let index = 1;
 				for (var key in user) {
 					if (user.hasOwnProperty(key)) {
-						values.push({ "index": index, "key": key, "value": user[key] });
-						index++;
+						values.push({ "index": index,"id": index, "next_date": key, "sub_id": user[key], "cust_id": user[key],
+						"Customer ID": ""});
+
 					}
 				}
 				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),

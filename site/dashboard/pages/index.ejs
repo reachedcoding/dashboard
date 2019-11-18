@@ -18,16 +18,24 @@
         <thead>
             <tr style="border-top: none;">
                 <th scope="col">#</th>
-                <th scope="col">Key</th>
-                <th scope="col">Value</th>
+                <th scope="col">Discord Name</th>
+                <th scope="col">Discord ID</th>
+                <th scope="col">Next Payment Date</th>
+                <th scope="col">Subscription ID</th>
+                <th scope="col">Customer ID</th>
+                <th scope="col">Kick</th>
             </tr>
         </thead>
         <tbody>
         <% values.forEach(function(value) { %>
         <tr>
             <th scope="row"><%= value.index %></th>
-            <th><%= value.key %></th>
-            <th><%= value.value %></th>
+            <th><%= value.name %></th>
+            <th><%= value.id %></th>
+            <th><%= value.next_date %></th>
+            <th><%= value.sub_id %></th>
+            <th><%= value.cust_id %></th>
+            <th><%=  %></th>
         </tr>
         <% }); %>
         </tbody>

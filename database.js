@@ -45,6 +45,10 @@ module.exports = class Database {
 			if (error) {
 				return response.status(500).send(error);
 			}
+			else{
+
+				
+			}
 		});
 	}
 
