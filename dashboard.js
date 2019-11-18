@@ -90,16 +90,10 @@ app.get('/', async function (req, res, next) {
 		discordUser = JSON.parse(response2);
 		console.log(`${discordUser.username}#${discordUser.discriminator} logged in!`);
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
-		let values = [];
-		let index = 1;
-		for (var key in discordUser) {
-			if (discordUser.hasOwnProperty(key)) {
-				values.push({ "index": index, "key": key, "value": discordUser[key] });
-				index++;
-			}
-		}
+		let value = { "index": "1","discord_id": "None", "next_payment": "None", "sub_id": "Sub_id", "cust_id": "cust_id", "discord_name": "discord_name" };
+		res.locals.value = value
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
-		res.locals.ejs = values;
+		res.locals.ejs = true;
 		res.locals.site = discordUser;
 		next();
 	} catch (e) {
@@ -115,7 +109,7 @@ app.get('/', async function (req, res, next) {
 	} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 			{
-				values: res.locals.ejs
+				value: res.locals.value
 			});
 	}
 });
