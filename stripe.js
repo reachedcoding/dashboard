@@ -16,86 +16,83 @@ function renew(id) {
   })
 }
 
+//charges once
 async function single_charge(amount, currency, source, description){
+  payment_id = uuidv4()
   await stripe.charges.create({
     amount: 2000,
     currency: "usd",
     source: "tok_visa", // obtained with Stripe.js
     description: "Charge for jenny.rosen@example.com"
   }, {
-    idempotency_key: uuidv4()
+    idempotency_key: payment_id
   }, function(err, charge) {
-        switch (err) {
-        case 'StripeCardError':
-          // A declined card error
-          err.message; // => e.g. "Your card's expiration year is invalid."
-          break;
-        case 'StripeRateLimitError':
-          // Too many requests made to the API too quickly
-          break;
-        case 'StripeInvalidRequestError':
-          // Invalid parameters were supplied to Stripe's API
-          break;
-        case 'StripeAPIError':
-          // An error occurred internally with Stripe's API
-          break;
-        case 'StripeConnectionError':
-          // Some kind of error occurred during the HTTPS communication
-          break;
-        case 'StripeAuthenticationError':
-          // You probably used an incorrect API key
-          break;
-        default:
-          // Handle any other types of unexpected errors
-          break;
+        if(err){
+          console.log(err.message);
+          return;
         }
         console.log(charge);
   });
 }
 
+//Creates a customer: input customer information
+async function create_customer(){
+  id = uuidv4()
+  stripe.customers.create(
+  {
+    description: 'Customer for jenny.rosen@example.com',
+    name: 'Shivam'
+  },{
+    idempotency_key: id
+  },
+  function(err, customer) {
+    console.log(customer);
+  }
+  );
+}
 
-function subscribe(plan_, customer_) {
+//creates a subscribtion: input customer id
+function subscribe(plan_, customer_id) {
+  id = uuidv4()
   stripe.subscriptions.create(
     {
-      customer: customer_,
+      customer: customer_id,
       items: [{ plan: plan_ }],
+    },{
+      idempotency_key: id
     },
     function (err, subscription) {
-        switch (err.type) {
-        case 'StripeCardError':
-          // A declined card error
-          err.message; // => e.g. "Your card's expiration year is invalid."
-          break;
-        case 'StripeRateLimitError':
-          // Too many requests made to the API too quickly
-          break;
-        case 'StripeInvalidRequestError':
-          // Invalid parameters were supplied to Stripe's API
-          break;
-        case 'StripeAPIError':
-          // An error occurred internally with Stripe's API
-          break;
-        case 'StripeConnectionError':
-          // Some kind of error occurred during the HTTPS communication
-          break;
-        case 'StripeAuthenticationError':
-          // You probably used an incorrect API key
-          break;
-        default:
-          // Handle any other types of unexpected errors
-          break;
-        }
+      if(err){
+        console.log(err.message);
+        return;
+      }
         console.log(subscription);
     }
   );
 }
 
-single_charge();
+//retrieves customer id: input customer id
+function retrieve_customer(cus_id){
+  stripe.customers.retrieve(
+  'cus_GCkiW9o3XyCwNf',
+  function(err, customer) {
+    // asynchronously called
+  }
+);
+}
+create_customer();
 
-function cancel_subscription(id) {
+//Cancels a subscription: input customer id
+function cancel_subscription(cus_id) {
+  id = uuidv4()
   stripe.subscriptions.del(
-    id,
+    cus_id,{
+      idempotency_key: id
+    },
     function (err, confirmation) {
-
+      if(err){
+        console.log(err.message);
+        return;
+      }
     });
 }
