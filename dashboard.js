@@ -93,11 +93,15 @@ app.get('/', async function (req, res, next) {
 				authorization: `Bearer ${access_token}`,
 			}
 		}).catch(e => { });
+		let values = [];
 		discordUser = JSON.parse(response2);
 		console.log(`${discordUser.username}#${discordUser.discriminator} logged in!`);
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
-		let value = { "index": "1","discord_id": "None", "next_payment": "None", "sub_id": "Sub_id", "cust_id": "cust_id", "discord_name": "discord_name" };
-		res.locals.value = value
+		for (let i = 1; i <= 20; i++) {
+			let value = { "index": i,"discord_id": "None", "next_payment": "None", "sub_id": "Sub_id", "cust_id": "cust_id", "discord_name": "discord_name" };
+			values.push(value);
+		}
+		res.locals.values = values;
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
 		res.locals.ejs = true;
 		res.locals.site = discordUser;
@@ -115,7 +119,7 @@ app.get('/', async function (req, res, next) {
 	} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 			{
-				value: res.locals.value
+				values: res.locals.values
 			});
 	}
 });

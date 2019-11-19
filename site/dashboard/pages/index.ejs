@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <% include ../partials/head %>
 </head>
@@ -9,36 +10,43 @@
 <header>
     <% include ../partials/header %>
 </header>
-<div class="bg" style="min-height: 100vh;">
-    <br>
-    
-    <div class="table-responsive" style="border: none;">
+<div class="container-fluid bg">
+        <br>
 
-    <table style="margin-top: 1rem;width: 90%;  margin: auto;text-align: center;" class="table table-hover table-dark h5 table-curved">
+<div class="table-responsive" style="border: none;">
+
+    <table style="margin-top: 1rem;width: 90%;  margin: auto;text-align: center;vertical-align: middle;"
+        class="table table-hover table-dark table-curved">
         <thead>
-            <tr style="border-top: none;">
-                <th scope="col">#</th>
-                <th scope="col">Discord Name</th>
-                <th scope="col">Discord ID</th>
-                <th scope="col">Next Payment Date</th>
-                <th scope="col">Subscription ID</th>
-                <th scope="col">Customer ID</th>
-                <th scope="col">Kick</th>
+            <tr class="h4" style="border-top: none;">
+                <th scope="col" style="vertical-align: middle;">#</th>
+                <th scope="col" style="vertical-align: middle;">Discord Name</th>
+                <th scope="col" style="vertical-align: middle;">Discord ID</th>
+                <th scope="col" style="vertical-align: middle;">Next Payment Date</th>
+                <th scope="col" style="vertical-align: middle;">Subscription ID</th>
+                <th scope="col" style="vertical-align: middle;">Customer ID</th>
+                <th scope="col" style="vertical-align: middle;">Kick</th>
             </tr>
         </thead>
         <tbody>
-        <tr>
-            <th scope="row"><%= value.index %></th>
-            <th><%= value.discord_name %></th>
-            <th><%= value.discord_id %></th>
-            <th><%= value.next_payment %></th>
-            <th><%= value.sub_id %></th>
-            <th><%= value.cust_id %></th>
-            <th>None</th>
-        </tr>
+            <% values.forEach(function(value){ %>
+            <tr class="h5">
+                <th scope="row" style="vertical-align: middle;"><%= value.index %></th>
+                <th style="vertical-align: middle;"><%= value.discord_name %></th>
+                <th style="vertical-align: middle;"><%= value.discord_id %></th>
+                <th style="vertical-align: middle;"><%= value.next_payment %></th>
+                <th style="vertical-align: middle;"><%= value.sub_id %></th>
+                <th style="vertical-align: middle;"><%= value.cust_id %></th>
+                <th style="vertical-align: middle;">
+                        <button type="button" class="btn btn-danger" onclick="alert('That feature has not been implemented yet. Index: ' + <%=value.index%>);">Remove</button>
+                    </th>
+                <% }) %>
+
+            </tr>
         </tbody>
     </table>
-    </div>
-    <% include ../partials/footer %>
-</div>
+    <br>
+</div></div>
+<% include ../partials/footer %>
+
 </html>
