@@ -14,6 +14,12 @@ const crypto = require("crypto");
 const rp = require('request-promise');
 require('log-timestamp');
 const Database = require('./database');
+const Stripe = require('./stripe');
+
+let s = new Stripe();
+(async function() {
+console.log(await s.create_customer());
+})();
 
 // DATABASE INFO
 let db, client_id, client_secret;
