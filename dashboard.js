@@ -17,8 +17,8 @@ const Database = require('./database');
 const Stripe = require('./stripe');
 
 let s = new Stripe();
-(async function() {
-console.log(await s.create_customer());
+(async function () {
+	console.log(await s.create_customer());
 })();
 
 // DATABASE INFO
@@ -60,22 +60,31 @@ app.use(express.static('site/images/icons'));
 app.set('view engine', 'ejs');
 
 // OAUTH2 FLOW LOGIN CALLBACK
-const login_url = encodeURI("https://dashboard.reachedcoding.com/login");
+const login_url = encodeURI("https://localhost/login");
 
 // MIDDLEWARE ON ROOT DOMAIN -- NOTHING FOR NOW
-app.use('/', function (req, res, next) {
-	if (req.method === 'GET' || req.method === 'HEAD') {
-		if (req.cookies.a && req.cookies.r) {
-			next();
-		} else {
-			let code = req.query.code;
-			if (code)
+app.use('/', async function (req, res, next) {
+	try {
+		if (req.method === 'GET' || req.method === 'HEAD') {
+			if (req.cookies.a && req.cookies.r) {
+				res.locals.id = await getDiscordId(req);
+				res.locals.user = await db.get_user(res.locals.id);
+				if (res.locals.user.type == 'admin') {
+					res.locals.admin = true;
+				} else {
+					res.locals.admin = false;
+				}
 				next();
-			else
+			} else {
+				let code = req.query.code;
+				if (req.path != '/login' && req.path != '/home') throw 'home';
 				next();
-		}
-	} else
-		next();
+			}
+		} else next();
+	} catch {
+		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+			rootUrl: rootUrl
+		});	}
 });
 
 // ROOT DOMAIN QUERY
@@ -84,7 +93,7 @@ app.get('/', async function (req, res, next) {
 	let discordUser;
 	try {
 		// GET COOKIES FROM REQUEST
-		let a = req.cookies.a; 
+		let a = req.cookies.a;
 		// DECRYPT THE ACCESS TOKEN COOKIE -- IF DOES NOT EXIST OR WRONGLY ENCODED, THROWS ERROR AND GOES TO THE CATCH BLOCK
 		let access_token = decrypt(a);
 		// REQUEST DISCORD_USER OBJECT FROM DISCORD'S API USING THE ACCESS TOKEN -- MAY ALSO THROW ERROR
@@ -93,29 +102,29 @@ app.get('/', async function (req, res, next) {
 				authorization: `Bearer ${access_token}`,
 			}
 		}).catch(e => { });
-		let values = [];
-		discordUser = JSON.parse(response2);
-		console.log(`${discordUser.username}#${discordUser.discriminator} logged in!`);
-		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
-		for (let i = 1; i <= 20; i++) {
-			let value = { "index": i,"discord_id": "None", "next_payment": "None", "sub_id": "Sub_id", "cust_id": "cust_id", "discord_name": "discord_name" };
-			values.push(value);
+		if (res.locals.admin) {
+			let values = [];
+			discordUser = JSON.parse(response2);
+			console.log(`${discordUser.username}#${discordUser.discriminator} logged in! with type ${res.locals.admin ? 'admin' : 'user'}`);
+			for (let i = 1; i <= 20; i++) {
+				let value = { "index": i, "discord_id": "None", "next_payment": "None", "sub_id": "Sub_id", "cust_id": "cust_id", "discord_name": "discord_name" };
+				values.push(value);
+			}
+			res.locals.values = values;
 		}
-		res.locals.values = values;
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
-		res.locals.ejs = true;
-		res.locals.site = discordUser;
 		next();
 	} catch (e) {
+		console.log(e);
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
 			rootUrl: rootUrl
 		});
-	}    
+	}
 
 }, function (req, res) {
 	// CHECKS WHETHER DATA HAS BEEN RECEIVED AND SHOWS IT OR SHOWS THE MAIN LOGIN SCREEN
-	if (!res.locals.ejs) {
-		res.send(res.locals.site);
+	if (!res.locals.admin) {
+		res.send('This site is not available for the public yet!');
 	} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 			{
@@ -153,7 +162,7 @@ app.get('/login', async function (req, res, next) {
 			res.cookie('a', a, { maxAge: 1000 * 60 * 60 * 24 * 365, httpOnly: true });
 			res.cookie('r', r, { maxAge: 1000 * 60 * 60 * 24 * 365, httpOnly: true });
 			let id = discordUser.id;
-			
+
 			// SPECIAL RESPONSE FROM DISCORD'S API SAYING NOT AUTHORIZED
 			if (discordUser.code && discordUser.code == 0) {
 				res.locals.site = "Unauthorized";
@@ -199,18 +208,25 @@ app.get('/test', async function (req, res) {
 		if (id) {
 			// FIND AN ID IN THE DATABASE WITH THE SAME ID AND RETURN ALL DATABASE DATA FOR THAT KEY
 			// IF NOT FOUND, ADD TO THE DATABASE AND REFRESH
-			let user = await db.get_user(id);
-			if (!user) {
-				res.redirect('/test');
+			let users = await db.get_collection('user');
+			if (!users) {
+				res.redirect('/error');
 			} else {
 				let index = 1;
-				let value = { "index": index,"discord_id": user.discord_id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name };
-				res.send(value);
-				//res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
-				//	{
-				//		value: value
-				//	});
+				let values = [];
+				for (let user of users) {
+					values.push({ "index": index, "discord_id": user.discord_id, "next_payment": user.next_payment, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name });
+					index++;
+				}
+				res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
+					{
+						values: values
+					});
 			}
+			//res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
+			//	{
+			//		value: value
+			//	});
 		}
 		else
 			res.redirect('/');
@@ -225,7 +241,7 @@ app.get('/admin', async function (req, res) {
 	});
 });
 
-app.post('/cancel', async function (req,res) {
+app.post('/cancel', async function (req, res) {
 
 });
 

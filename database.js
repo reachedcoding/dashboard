@@ -22,6 +22,12 @@ module.exports = class Database {
 		});
 	}
 
+	async get_collection(collection_name) {
+		let collection = this.database.collection(collection_name);
+		let data = await collection.find().toArray();
+		return data;
+	}
+
 	async get_user(id) {
 		let collection = this.database.collection("admin");
 		let result = await collection.find({ "discord_id": id }).toArray();
@@ -32,9 +38,11 @@ module.exports = class Database {
 				return false;
 			}
 			else {
+				result[0].type = 'user';
 				return result[0];
 			}
 		} else {
+			result[0].type = 'admin';
 			return result[0]
 		}
 	}
