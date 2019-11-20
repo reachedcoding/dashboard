@@ -60,7 +60,7 @@ app.use(express.static('site/images/icons'));
 app.set('view engine', 'ejs');
 
 // OAUTH2 FLOW LOGIN CALLBACK
-const login_url = encodeURI("https://localhost/login");
+const login_url = encodeURI("https://dashboard.reachedcoding.com/login");
 
 // MIDDLEWARE ON ROOT DOMAIN -- NOTHING FOR NOW
 app.use('/', async function (req, res, next) {
