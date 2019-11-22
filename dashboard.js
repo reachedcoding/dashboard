@@ -58,7 +58,14 @@ app.use(express.static('site/dashboard'));
 app.use(express.static('site/dashboard/'));
 app.use(express.static('site/images/icons'));
 app.set('view engine', 'ejs');
-
+app.use(function (err, req, res, next) {
+	console.error(err.stack)
+	res.status(500);
+	res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
+	{
+		rootUrl: rootUrl
+	});
+  })
 // OAUTH2 FLOW LOGIN CALLBACK
 const login_url = encodeURI("https://dashboard.reachedcoding.com/login");
 
@@ -124,8 +131,11 @@ app.get('/', async function (req, res, next) {
 }, function (req, res) {
 	// CHECKS WHETHER DATA HAS BEEN RECEIVED AND SHOWS IT OR SHOWS THE MAIN LOGIN SCREEN
 	if (!res.locals.admin) {
-		res.send('This site is not available for the public yet!');
-	} else {
+		res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
+		{
+			rootUrl: rootUrl
+		});
+		} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
 			{
 				values: res.locals.values
@@ -243,6 +253,14 @@ app.get('/admin', async function (req, res) {
 
 app.post('/cancel', async function (req, res) {
 
+});
+
+app.get('*', function(req, res){
+	res.status(404);
+	res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
+	{
+		rootUrl: rootUrl
+	});  
 });
 
 // ENCRYTION/DECRYPTION LOGIC

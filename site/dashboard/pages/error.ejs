@@ -1,0 +1,33 @@
+<!-- views/pages/about.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head %>
+  <title> 
+    Error
+  </title>
+</head>
+<div class="bg" style="min-height: 100vh;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href=<%- rootUrl -%>>
+      <img src="./../images/logo.svg" class="float-left img-fluid image-cropper" style="width: 5rem; margin: 2rem;">
+    </a>
+  </div>
+
+  <div class="center-screen" style="min-height: 50vh;">
+    <div class="card text-center text-white bg-dark mb-4 mx-auto"
+      style="display: flex;justify-content: center;">
+      <div class="card-header  h1">
+        <b>Unauthorized</b>
+      </div>
+      <div class="card-body h3">
+        This site is not available yet!
+      </div>
+    </div>
+  </div>
+</div>
+      <% include ../partials/footer %>
+
+</html>
