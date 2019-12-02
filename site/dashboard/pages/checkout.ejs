@@ -1,0 +1,44 @@
+<!-- views/pages/about.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head %>
+</head>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    var stripe = Stripe('<%- stripePublicKey -%>');
+
+    function redirectToCheckout() {
+        stripe.redirectToCheckout({
+            sessionId: '<%- token -%>'
+        }).then(function (result) {
+            // If `redirectToCheckout` fails due to a browser or network
+            // error, display the localized error message to your customer
+            // using `result.error.message`.
+        });
+    }
+</script>
+
+<div class="bg" style="min-height: 100vh;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href=<%- rootUrl -%>>
+            <img src="./../images/logo.svg" class="float-left img-fluid image-cropper"
+                style="width: 5rem; margin: 2rem;">
+        </a>
+    </div>
+
+    <div class="center-screen" style="min-height: 50vh;">
+        <div class="card text-center text-white bg-dark mb-4 mx-auto" style="display: flex;justify-content: center;">
+            <div class="card-header  h1">
+                <b>Purchase</b>
+            </div>
+            <div class="card-body h3">
+                <button type="button" class="btn btn-danger" onclick="redirectToCheckout();">Pay Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
