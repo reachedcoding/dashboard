@@ -51,7 +51,11 @@ app.use('/', async function (req, res, next) {
 	try {
 		let client = clients.find(client => client.hostname == req.hostname);
 		if (!client) {
-			res.status(403).send("You have not purchased a subscription! Please contact specials#0001 on discord for further details!")
+			let client = clients.find(client => client.hostname == "ReachedIO");
+			res.status(403).render(path.join(__dirname, 'site/dashboard/pages/not_paid.ejs'), {
+				rootUrl: res.locals.client.domain,
+				background_url: res.locals.client.background_url
+			});
 		} else {
 		res.locals.client = client;
 		if (req.path != '/login' && req.cookies.a && req.cookies.r) {
