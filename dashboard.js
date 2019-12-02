@@ -53,8 +53,8 @@ app.use('/', async function (req, res, next) {
 		if (!client) {
 			let client = clients.find(client => client.hostname == "ReachedIO");
 			res.status(403).render(path.join(__dirname, 'site/dashboard/pages/not_paid.ejs'), {
-				rootUrl: res.locals.client.domain,
-				background_url: res.locals.client.background_url
+				rootUrl: client.domain,
+				background_url: client.background_url
 			});
 		} else {
 		res.locals.client = client;
