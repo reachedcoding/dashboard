@@ -36,6 +36,7 @@
                 <thead>
                     <tr class="h5" style="border-top: none;">
                         <th scope="col" style="vertical-align: middle;">#</th>
+                        <th scope="col" style="vertical-align: middle;">Key</th>
                         <th scope="col" style="vertical-align: middle;">Discord Name</th>
                         <th scope="col" style="vertical-align: middle;">Discord ID</th>
                         <th scope="col" style="vertical-align: middle;">Next Payment Date</th>
@@ -47,8 +48,9 @@
                 </thead>
                 <tbody>
                     <% users.forEach(function(user){ %>
-                    <tr class="h6">
+                    <tr class="">
                         <th scope="row" style="vertical-align: middle;"><%= user.index %></th>
+                        <th style="vertical-align: middle;"><%= user.key %></th>
                         <th style="vertical-align: middle;"><%= user.discord_name %></th>
                         <th style="vertical-align: middle;"><%= user.discord_id %></th>
                         <th style="vertical-align: middle;"><%= user.next_payment %></th>

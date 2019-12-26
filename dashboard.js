@@ -15,6 +15,8 @@ const rp = require('request-promise');
 require('log-timestamp');
 const Database = require('./database');
 const Stripe = require('./stripe');
+const Email = require('./email');
+
 //const Client = require('./client');
 
 // DATABASE INFO
@@ -58,6 +60,7 @@ app.use('/', async function (req, res, next) {
 			});
 		} else {
 		res.locals.client = client;
+		//runTestCode(client);
 		if (req.path != '/login' && req.cookies.a && req.cookies.r) {
 			res.locals.discord = await getDiscord(req);
 			res.locals.id = res.locals.discord.id;
@@ -113,14 +116,15 @@ app.get('/', async function (req, res, next) {
 					res.redirect('/error');
 				} else {
 					let index = 1;
-					let users = [];
+					let consumers = [];
 					for (let user of users) {
-						let days = ((user.next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
-						let date = user.next_payment.toLocaleDateString();
-						users.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name });
+						let next_payment = user.next_payment;
+						let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
+						let date = next_payment.toLocaleDateString();
+						consumers.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name, "key": user.key });
 						index++;
 					}
-					res.locals.users = users;
+					res.locals.users = consumers;
 
 				}
 			} else {
@@ -153,7 +157,7 @@ app.get('/', async function (req, res, next) {
 			});
 		}
 	} else {
-		res.render(path.join(__dirname, 'site/dashboard/pages/index.ejs'),
+		res.render(path.join(__dirname, 'site/dashboard/pages/admin.ejs'),
 			{
 				users: res.locals.users,
 				rootUrl: res.locals.client.domain,
@@ -161,6 +165,12 @@ app.get('/', async function (req, res, next) {
 			});
 	}
 });
+
+async function runTestCode(client) {
+	let users = await client.db.get_collection('user');
+	let cards = await client.stripe.list_all_cards(users[0].cust_id);
+	console.log(cards);
+}
 
 // LOGIN DOMAIN QUERY
 app.get('/login', async function (req, res, next) {
@@ -230,12 +240,14 @@ app.get('/home', function (req, res) {
 });
 
 app.get('/checkout', async function (req, res) {
+	let products = await res.locals.client.stripe.get_all_products();
 	let stripePublicKey = res.locals.client.stripePublicKey;
-	let token = await res.locals.client.stripe.create_session('membership', 'https://' + res.locals.client.hostname);
+	let SI = await res.locals.client.stripe.create_session('https://' + res.locals.client.hostname);
+	let token = SI.id;
+	let pi = SI.pi;
 	paid_waitlist.push({
 		id: token,
-		client: res.locals.client,
-		discord: res.locals.discord
+		client: res.locals.client
 	});
 	res.render(path.join(__dirname, 'site/dashboard/pages/checkout.ejs'), {
 		rootUrl: res.locals.client.domain,
@@ -245,15 +257,41 @@ app.get('/checkout', async function (req, res) {
 	});
 });
 
-app.get('/success', async function (req, res) {
-	let session_id = req.query.session_id;
+app.get('/user', function (req,res)  {
+	res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'), {
+		discord_id: res.locals.discord.id
+	});
+})
 
+app.get('/success', async function (req, res) {
+	let client = res.locals.client;
+	let session_id = req.query.session_id;
+	let session = await client.stripe.get_session(session_id);
+	let payment_intent = session.payment_intent;
 	res.redirect('/');
 });
 
 app.post('/charge', async function (req, res) {
 	const token = req.body.stripeToken;
 	const charge = await s.single_charge(token);
+});
+
+app.post('/pause-subscription', async function (req, res) {
+	console.log('hello');
+	let discord_id = res.locals.discord.id;
+	if (res.locals.admin) {
+		let client = res.locals.client;
+		let user_db = await client.db.find_user(discord_id);
+		if (user_db.length == 1) {
+			let sub_id = user_db[0].sub_id;
+			await client.stripe.pause_subscription(sub_id);
+			res.status(200).send('Ok!');
+		} else {
+			res.status(403).send('You are not a member of this guild!');
+		}
+	} else {
+		res.status(403).send('Unauthorized!');
+	}
 });
 
 app.post('/remove', async function (req, res) {
@@ -362,10 +400,10 @@ async function getDiscord(req) {
 			headers: {
 				authorization: `Bearer ${access_token}`,
 			}
-		}).catch(e => { });
-		discordUser = JSON.parse(response2);
+		}).catch(e => { console.log(e); });
+		let discordUser = JSON.parse(response2);
 		return discordUser;
-	} catch {
+	} catch (e) {
 		return null;
 	}
 }
@@ -384,7 +422,18 @@ async function onStart() {
 		let client_id = client.client_id;
 		let client_secret = client.client_secret;
 		let debug = client.debug;
-		let client_obj = new Client(domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, debug);
+		let sendgrid_key = client.sendgrid_key;
+		let client_obj = new Client(
+			domain, 
+			db_name, 
+			stripePublicKey, 
+			stripeSecretKey, 
+			signing_secret, 
+			background_url, 
+			client_id, 
+			client_secret, 
+			sendgrid_key,
+			debug);
 		client_obj.db.initialize();
 		clients.push(client_obj);
 	});
@@ -414,7 +463,7 @@ async function sleep(ms) {
 }
 
 class Client {
-	constructor(domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, debug = false) {
+	constructor(domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, sendgrid_key, debug = false) {
 		let prefix = debug ? 'debug.' : 'dashboard.';
 		this.hostname = prefix + domain;
 		this.login_url = encodeURI("https://" + this.hostname + '/login');
@@ -428,6 +477,8 @@ class Client {
 		this.client_id = client_id;
 		this.client_secret = client_secret;
 		this.stripe = new Stripe(stripePublicKey, stripeSecretKey);
+		this.email = new Email(sendgrid_key);
+		//this.email.sendMail('ssinghnes@gmail.com', 'noreply@reachedcoding.com', 'FSDFS-SDFSD-SDFSD-SGSER');
 	}
 
 	async initialize() {
