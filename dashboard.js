@@ -59,27 +59,27 @@ app.use('/', async function (req, res, next) {
 				background_url: client.background_url
 			});
 		} else {
-		res.locals.client = client;
-		//runTestCode(client);
-		if (req.path != '/login' && req.cookies.a && req.cookies.r) {
-			res.locals.discord = await getDiscord(req);
-			res.locals.id = res.locals.discord.id;
-			res.locals.user = await client.db.get_user(res.locals.id);
-			if (res.locals.user.type == 'admin') {
-				res.locals.admin = true;
-			} else {
-				res.locals.admin = false;
-			}
-			if (req.method === 'GET' || req.method === 'HEAD') {
+			res.locals.client = client;
+			//runTestCode(client);
+			if (req.path != '/login' && req.cookies.a && req.cookies.r) {
+				res.locals.discord = await getDiscord(req);
+				res.locals.id = res.locals.discord.id;
+				res.locals.user = await client.db.get_user(res.locals.id);
+				if (res.locals.user.type == 'admin') {
+					res.locals.admin = true;
+				} else {
+					res.locals.admin = false;
+				}
+				if (req.method === 'GET' || req.method === 'HEAD') {
 
-				next();
-			} else {
-				let code = req.query.code;
-				next();
-				//if (req.path != '/login' && req.path != '/home') throw 'home';
-			}
-		} else next();
-	}
+					next();
+				} else {
+					let code = req.query.code;
+					next();
+					//if (req.path != '/login' && req.path != '/home') throw 'home';
+				}
+			} else next();
+		}
 	} catch (e) {
 		//console.log(e);
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
@@ -106,30 +106,32 @@ app.get('/', async function (req, res, next) {
 	try {
 		let discord = res.locals.discord;
 		console.log(discord);
-		let id = discord.id;
-		if (id) {
-			if (res.locals.admin) {
-				let db = res.locals.client.db;
-				// FIND AN ID IN THE DATABASE WITH THE SAME ID AND RETURN ALL DATABASE DATA FOR THAT KEY
-				// IF NOT FOUND, ADD TO THE DATABASE AND REFRESH
-				let users = await db.get_collection('user');
-				if (!users) {
-					res.redirect('/error');
-				} else {
-					let index = 1;
-					let consumers = [];
-					for (let user of users) {
-						let next_payment = user.next_payment;
-						let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
-						let date = next_payment.toLocaleDateString();
-						consumers.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name, "key": user.key });
-						index++;
+		if (discord) {
+			let id = discord.id;
+			if (id) {
+				if (res.locals.admin) {
+					let db = res.locals.client.db;
+					// FIND AN ID IN THE DATABASE WITH THE SAME ID AND RETURN ALL DATABASE DATA FOR THAT KEY
+					// IF NOT FOUND, ADD TO THE DATABASE AND REFRESH
+					let users = await db.get_collection('user');
+					if (!users) {
+						res.redirect('/error');
+					} else {
+						let index = 1;
+						let consumers = [];
+						for (let user of users) {
+							let next_payment = user.next_payment;
+							let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
+							let date = next_payment.toLocaleDateString();
+							consumers.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name, "key": user.key });
+							index++;
+						}
+						res.locals.users = consumers;
+
 					}
-					res.locals.users = consumers;
+				} else {
 
 				}
-			} else {
-				
 			}
 		}
 		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
@@ -258,7 +260,7 @@ app.get('/checkout', async function (req, res) {
 	});
 });
 
-app.get('/user', function (req,res)  {
+app.get('/user', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'), {
 		discord_id: res.locals.discord.id
 	});
@@ -425,14 +427,14 @@ async function onStart() {
 		let debug = client.debug;
 		let sendgrid_key = client.sendgrid_key;
 		let client_obj = new Client(
-			domain, 
-			db_name, 
-			stripePublicKey, 
-			stripeSecretKey, 
-			signing_secret, 
-			background_url, 
-			client_id, 
-			client_secret, 
+			domain,
+			db_name,
+			stripePublicKey,
+			stripeSecretKey,
+			signing_secret,
+			background_url,
+			client_id,
+			client_secret,
 			sendgrid_key,
 			debug);
 		client_obj.db.initialize();
