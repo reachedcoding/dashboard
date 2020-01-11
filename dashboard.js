@@ -121,6 +121,8 @@ app.get('/', async function (req, res, next) {
 						let consumers = [];
 						for (let user of users) {
 							let next_payment = user.next_payment;
+							console.log(next_payment);
+							console.log(typeof next_payment);
 							let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
 							let date = next_payment.toLocaleDateString();
 							consumers.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name, "key": user.key });
