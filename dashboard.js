@@ -120,7 +120,7 @@ app.get('/', async function (req, res, next) {
 						let index = 1;
 						let consumers = [];
 						for (let user of users) {
-							let next_payment = user.next_payment;
+							let next_payment = new Date(user.next_payment);
 							console.log(next_payment);
 							console.log(typeof next_payment);
 							let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
