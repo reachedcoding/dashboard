@@ -105,6 +105,7 @@ app.get('/', async function (req, res, next) {
 	let discordUser;
 	try {
 		let discord = res.locals.discord;
+		console.log(discord);
 		let id = discord.id;
 		if (id) {
 			if (res.locals.admin) {
