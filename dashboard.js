@@ -21,7 +21,7 @@ const Email = require('./email');
 
 // DATABASE INFO
 let clients = [], paid_waitlist = [];
-
+let master_db;
 // TEMPLATE FOR ADMIN USER OBJECT
 let adminObj = {
 	id: "",
@@ -105,7 +105,7 @@ app.get('/', async function (req, res, next) {
 	let discordUser;
 	try {
 		let discord = res.locals.discord;
-		console.log(discord);
+		//console.log(discord);
 		if (discord) {
 			let id = discord.id;
 			if (id) {
@@ -121,8 +121,8 @@ app.get('/', async function (req, res, next) {
 						let consumers = [];
 						for (let user of users) {
 							let next_payment = new Date(user.next_payment);
-							console.log(next_payment);
-							console.log(typeof next_payment);
+							// console.log(next_payment);
+							// console.log(typeof next_payment);
 							let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
 							let date = next_payment.toLocaleDateString();
 							consumers.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name, "key": user.key });
@@ -310,6 +310,19 @@ app.post('/remove', async function (req, res) {
 	}
 });
 
+app.post('/settings', async function (req, res) {
+	let discord = req.locals.discord;
+	let name = req.body.name;
+	let value = req.body.value;
+	if (res.locals.admin) {
+		let client = res.locals.client;
+		master_db.update_settings(client.domain, name, value);
+		res.status(200).send('Ok!');
+	} else {
+		res.status(403).send('Unauthorized!');
+	}
+});
+
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) => {
 	const sig = req.headers['stripe-signature'];
 
@@ -414,9 +427,9 @@ async function getDiscord(req) {
 }
 
 async function onStart() {
-	let db = new Database('Admin_DB');
-	await db.initialize();
-	let clients_db = await db.get_collection('client');
+	master_db = new Database('Admin_DB');
+	await master_db.initialize();
+	let clients_db = await master_db.get_collection('client');
 	clients_db.forEach(client => {
 		let domain = client.domain;
 		let db_name = client.db_name;

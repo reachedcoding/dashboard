@@ -82,4 +82,14 @@ module.exports = class Database {
 		});
 	}
 
+	async update_settings(domain, name, value) {
+		let queryId = { domain: domain }; //Get the ID of the object
+		let myObj = { 
+			$set: { 
+				[name]: value //Whatever you want to change for that ID
+			}
+		  };
+		await this.database.collection("client").updateOne(queryId, myObj, (err, res) => {
+		}); 
+	}
 }
