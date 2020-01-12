@@ -6,8 +6,9 @@
 <head>
     <% include ../partials/head %>
     <script>
-        
+
         function submitButton(id, name, date) {
+            if (id != "")
             $.ajax({
                 type: 'post',
                 url: 'remove',
@@ -23,12 +24,8 @@
 </head>
 
 <div class="container-fluid bg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href=<%- rootUrl -%>>
-            <img src="./../images/logo.svg" class="float-left img-fluid image-cropper"
-                style="width: 5rem; margin: 1rem;">
-        </a>
-    </div>
+    <% include ../partials/nav %>
+
     <div style="  max-height: 1000px;overflow: auto;">
         <div class="table-responsive" style="border: none;padding-top: 3rem;padding-bottom: 3rem;">
             <table style="width: 90%; padding: 0.5rem; margin: auto;text-align: center;vertical-align: middle;"
@@ -58,7 +55,8 @@
                         <th style="vertical-align: middle;"><%= user.sub_id %></th>
                         <th style="vertical-align: middle;"><%= user.cust_id %></th>
                         <th style="vertical-align: middle;">
-                            <button type="button" onclick="submitButton('<%= user.discord_id %>', '<%= user.discord_name %>', '<%= user.next_payment %>')"
+                            <button type="button"
+                                onclick="submitButton('<%= user.discord_id %>', '<%= user.discord_name %>', '<%= user.next_payment %>')"
                                 class="btn btn-danger">Remove</button>
                         </th>
                         <% }) %>
@@ -71,11 +69,12 @@
 </div>
 
 <div class="alert alert-danger alert-dismissible fade show" style="display: none;" role="alert">
-    <strong id="alert-text">Discord User</strong>'s subscription has been cancelled. They will be removed from your server on <strong id="date-text">Date</strong>
+    <strong id="alert-text">Discord User</strong>'s subscription has been cancelled. They will be removed from your
+    server on <strong id="date-text">Date</strong>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
+        <span aria-hidden="true">&times;</span>
     </button>
-  </div>
+</div>
 <% include ../partials/footer %>
 
 </html>

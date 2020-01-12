@@ -4,6 +4,9 @@
 
 .body {
   background-color: #2e2e2e;
+  background-image: url('../images/google-paying-users.jpg');
+  background-position: 0px 0px;
+  background-size: cover;
 }
 
 .userimage {
@@ -16,6 +19,7 @@
   margin-left: auto;
   border: 1px none #000;
   border-radius: 1000px;
+  opacity: 1;
   -webkit-transform: translate(0px, 29px);
   -ms-transform: translate(0px, 29px);
   transform: translate(0px, 29px);
@@ -78,8 +82,9 @@
 .div-block-2 {
   position: relative;
   width: 50%;
-  margin-right: 15px;
-  margin-left: 15px;
+  margin-right: 0px;
+  margin-left: 0px;
+  padding-left: 0px;
   background-color: #212121;
 }
 
@@ -91,6 +96,8 @@
 }
 
 .div-block-3 {
+  position: relative;
+  z-index: 1;
   display: block;
   margin-right: auto;
   margin-left: auto;
@@ -148,13 +155,17 @@
 }
 
 .container-2 {
+  position: relative;
+  z-index: -1;
   padding-bottom: 25px;
   border-radius: 20px;
   background-color: #212121;
+  opacity: 0.95;
 }
 
 .text-block-2 {
-  margin-top: 37px;
+  margin-top: 0px;
+  padding-top: 40px;
   font-family: Impact, Haettenschweiler, 'Franklin Gothic Bold', Charcoal, sans-serif;
   font-size: 20px;
 }
@@ -168,7 +179,9 @@
 }
 
 .text-block-2-copy {
-  margin-top: 37px;
+  overflow: auto;
+  margin-top: 0px;
+  padding-top: 20px;
   font-family: Bitter, serif;
   color: #fff;
   font-size: 20px;
@@ -212,8 +225,12 @@
   margin-top: 0px;
   margin-right: 20px;
   padding-left: 15px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #000;
   border-radius: 6px;
-  background-color: #d13c4d;
+  background-color: transparent;
+  color: #000;
   font-size: 20px;
   text-align: center;
 }
@@ -268,7 +285,7 @@
 .button4 {
   display: block;
   margin-right: 0px;
-  margin-left: 100px;
+  margin-left: 66px;
   border-radius: 5px;
   background-color: rgba(206, 63, 58, 0.88);
   font-family: Bitter, serif;
@@ -280,6 +297,8 @@
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  margin-right: 0px;
+  margin-left: 0px;
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   -ms-flex-pack: center;
@@ -342,6 +361,27 @@
   align-items: center;
   border-radius: 5px;
   background-color: #8656ff;
+}
+
+.div-block-4 {
+  position: relative;
+  z-index: 0;
+}
+
+.container-3 {
+  margin-top: 20px;
+  border-radius: 11px;
+  background-color: #3d3939;
+}
+
+.div-block-5 {
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.field-label {
+  margin-top: 15px;
+  color: #fff;
 }
 
 @media (max-width: 991px) {

@@ -36,6 +36,7 @@ module.exports = class Stripe {
       cancel_url: `${domain}/cancel`,
     });
     return {
+      session: session,
       id: session.id,
       pi: session.payment_intent
     };
@@ -44,9 +45,21 @@ module.exports = class Stripe {
   async capture_payment_intent(payment_intent) {
     let obj = await this.stripe.paymentIntents.capture(payment_intent);
     if (obj.status == "succeeded")
+      return obj;
+    else
+      return null;
+  }
+
+  async cancel_payment_intent(payment_intent) {
+    let obj = await this.stripe.paymentIntents.cancel(payment_intent);
+    if (obj.status == "succeeded")
       return true;
     else
       return false;
+  }
+
+  async get_customer(cust_id) {
+    return await this.stripe.customers.retrieve(cust_id);
   }
 
   async get_session(session_id) {

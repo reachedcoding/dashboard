@@ -1,0 +1,129 @@
+<!-- views/pages/about.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head %>
+    <script>
+        let forms;
+        document.addEventListener("DOMContentLoaded", function () {
+            forms = $("form");
+            // $("form").each(function () {
+            //     var form = $(this); // This is the jquery object of the input, do what you will
+            //     console.log(form);
+            //     form.onsubmit = function (e) {
+            //         e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            //         $.ajax({
+            //             type: "POST",
+            //             url: "/settings",
+            //             data: form.serialize(), // serializes the form's elements.
+            //             success: function (data) {
+            //                 alert(data); // show response from the php script.
+            //             }
+            //         });
+
+
+            //     };
+            // });
+            for (let i = 0; i < forms.length; i++) {
+                let form = forms[i];
+                form.onsubmit = function (e) {
+                    e.preventDefault(); // avoid to execute the actual submit of the form.
+                    let frm = $(this);
+                    let data = frm.serialize();
+                    console.log(data);
+                    $.ajax({
+                        type: "POST",
+                        url: "/settings",
+                        data: data, // serializes the form's elements.
+                        success: function (data) {
+                            alert(data); // show response from the php script.
+                        }
+                    });
+
+
+                };
+            }
+        });
+    </script>
+</head>
+<div class="bg" style="min-height: 100vh;width: 100%;">
+    <% include ../partials/nav %>
+
+
+    <div class="center-screen" style="min-height: 50vh;width: 100%;">
+        <div class="card text-center text-white bg-dark mb-4 mx-auto"
+            style="display: flex;justify-content: center;min-width: 80%;">
+            <div class="card-header  h1">
+                <b>Settings</b>
+            </div>
+            <div class="card-body h3">
+                <form id="background_url" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Background URL</label>
+                        <input type="text" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Background URL">
+                        <input type="hidden" id="custId" name="type" value="background_url">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form id="stripe_public_key">
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Stripe Public Key</label>
+                        <input type="password" class="form-control" name="value" id="stripe_public"
+                            placeholder="Stripe Public Key">
+                        <input type="hidden" id="custId" name="type" value="stripePublicKey">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form id="stripe_secret_key">
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Stripe Secret Key</label>
+                        <input type="password" class="form-control" name="value" id="stripe_secret"
+                            placeholder="Stripe Secret Key">
+                        <input type="hidden" id="custId" name="type" value="stripeSecretKey">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Discord Client ID</label>
+                        <input type="password" class="form-control" name="value" id="stripe_secret"
+                            placeholder="Discord Client ID">
+                        <input type="hidden" id="custId" name="type" value="client_id">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Discord Client Secret</label>
+                        <input type="password" class="form-control" name="value" id="stripe_secret"
+                            placeholder="Discord Client Secret">
+                        <input type="hidden" id="custId" name="type" value="client_secret">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Top Brand Color</label>
+                        <input type="text" class="form-control" name="value" id="brand_color"
+                            placeholder="Top Brand Color">
+                        <input type="hidden" id="custId" name="type" value="brand_color">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<% include ../partials/footer %>
+
+</html>

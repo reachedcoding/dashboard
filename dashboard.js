@@ -84,7 +84,8 @@ app.use('/', async function (req, res, next) {
 		//console.log(e);
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
 			rootUrl: res.locals.client.domain,
-			background_url: res.locals.client.background_url
+			background_url: res.locals.client.background_url,
+			logo: res.locals.client.logo
 		});
 	}
 });
@@ -95,7 +96,9 @@ app.use(function (err, req, res, next) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
 		{
 			rootUrl: res.locals.client.domain,
-			background_url: res.locals.client.background_url
+			background_url: res.locals.client.background_url,
+			logo: res.locals.client.logo,
+			brand_color: res.locals.client.brand_color
 		});
 });
 
@@ -142,7 +145,9 @@ app.get('/', async function (req, res, next) {
 		console.log(e);
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
 			rootUrl: res.locals.client.domain,
-			background_url: res.locals.client.background_url
+			background_url: res.locals.client.background_url,
+			logo: res.locals.client.logo,
+			brand_color: res.locals.client.brand_color
 		});
 	}
 
@@ -153,12 +158,16 @@ app.get('/', async function (req, res, next) {
 			res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'),
 				{
 					rootUrl: res.locals.client.domain,
-					background_url: res.locals.client.background_url
+					background_url: res.locals.client.background_url,
+					logo: res.locals.client.logo,
+					brand_color: res.locals.client.brand_color
 				});
 		} else {
 			res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
 				rootUrl: res.locals.client.domain,
-				background_url: res.locals.client.background_url
+				background_url: res.locals.client.background_url,
+				logo: res.locals.client.logo,
+				brand_color: res.locals.client.brand_color
 			});
 		}
 	} else {
@@ -166,7 +175,9 @@ app.get('/', async function (req, res, next) {
 			{
 				users: res.locals.users,
 				rootUrl: res.locals.client.domain,
-				background_url: res.locals.client.background_url
+				background_url: res.locals.client.background_url,
+				logo: res.locals.client.logo,
+				brand_color: res.locals.client.brand_color
 			});
 	}
 });
@@ -240,16 +251,21 @@ app.get('/logout', async function (req, res) {
 app.get('/home', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
 		rootUrl: res.locals.client.domain,
-		background_url: res.locals.client.background_url
+		background_url: res.locals.client.background_url,
+		logo: res.locals.client.logo,
+		brand_color: res.locals.client.brand_color
 	});
 });
 
 app.get('/checkout', async function (req, res) {
+	let client = res.locals.client;
+	if (client.inventory > 0) {
 	let products = await res.locals.client.stripe.get_all_products();
 	let stripePublicKey = res.locals.client.stripePublicKey;
 	let SI = await res.locals.client.stripe.create_session('https://' + res.locals.client.hostname);
 	let token = SI.id;
 	let pi = SI.pi;
+	let session = SI.session;
 	paid_waitlist.push({
 		id: token,
 		client: res.locals.client
@@ -258,13 +274,26 @@ app.get('/checkout', async function (req, res) {
 		rootUrl: res.locals.client.domain,
 		background_url: res.locals.client.background_url,
 		token: token,
-		stripePublicKey: stripePublicKey
+		stripePublicKey: stripePublicKey,
+		logo: res.locals.client.logo,
+		brand_color: res.locals.client.brand_color
+		
 	});
+} else {
+	res.render(path.join(__dirname, 'site/dashboard/pages/sold_out.ejs'),
+	{
+		rootUrl: res.locals.client.domain,
+		background_url: res.locals.client.background_url,
+		logo: res.locals.client.logo,
+		brand_color: res.locals.client.brand_color
+	});	
+}
 });
 
 app.get('/user', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'), {
-		discord_id: res.locals.discord.id
+		discord_id: res.locals.discord.id,
+		logo: res.locals.client.logo
 	});
 })
 
@@ -273,7 +302,51 @@ app.get('/success', async function (req, res) {
 	let session_id = req.query.session_id;
 	let session = await client.stripe.get_session(session_id);
 	let payment_intent = session.payment_intent;
-	res.redirect('/');
+	let inventory = client.inventory;
+	if (inventory > 0) {
+		inventory--;
+		let response = await client.stripe.capture_payment_intent(payment_intent);
+		if (response) {
+			res.render(path.join(__dirname, 'site/dashboard/pages/success.ejs'),
+			{
+				rootUrl: res.locals.client.domain,
+				background_url: res.locals.client.background_url,
+				logo: res.locals.client.logo,
+				brand_color: res.locals.client.brand_color
+			});
+			let key = `${makeid(5)}-${makeid(5)}-${makeid(5)}-${makeid(5)}`;
+			let customer = await client.stripe.get_customer(response.customer);
+			let toAddress = customer.email;
+			client.db.add_user({
+				discord_id: '',
+				sub_id: '',
+				cust_id: '',
+				discord_name: '',
+				next_payment: '',
+				email: toAddress,
+				key: key
+			});
+			let fromAddress = 'info@' + client.pure_domain;
+			client.email.sendMail(toAddress, fromAddress, key);
+		} else {
+			inventory++;
+		}
+		await client.db.update_settings(client.pure_domain, 'inventory', inventory)
+	} else {
+		try {
+			await cancel_payment_intent(payment_intent);
+		} catch (e) {
+
+		}
+		res.render(path.join(__dirname, 'site/dashboard/pages/sold_out.ejs'),
+		{
+			rootUrl: res.locals.client.domain,
+			background_url: res.locals.client.background_url,
+			logo: res.locals.client.logo,
+			brand_color: res.locals.client.brand_color
+		});	
+	}
+	//res.redirect('/');
 });
 
 app.post('/charge', async function (req, res) {
@@ -310,13 +383,28 @@ app.post('/remove', async function (req, res) {
 	}
 });
 
+app.get('/settings', async function (req, res) {
+	if (res.locals.admin)
+	res.render(path.join(__dirname, 'site/dashboard/pages/settings.ejs'),
+	{
+		rootUrl: res.locals.client.domain,
+		background_url: res.locals.client.background_url,
+		logo: res.locals.client.logo,
+		brand_color: res.locals.client.brand_color
+	});
+	else
+	res.status(403).send('Unauthorized!');
+
+});
+
 app.post('/settings', async function (req, res) {
-	let discord = req.locals.discord;
-	let name = req.body.name;
+	let discord = res.locals.discord;
+	let name = req.body.type;
 	let value = req.body.value;
-	if (res.locals.admin) {
+	if (res.locals.admin) { 
 		let client = res.locals.client;
-		master_db.update_settings(client.domain, name, value);
+		await master_db.update_settings(client.pure_domain, name, value);
+		updateClients();
 		res.status(200).send('Ok!');
 	} else {
 		res.status(403).send('Unauthorized!');
@@ -352,7 +440,8 @@ app.get('*', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
 		{
 			rootUrl: res.locals.client.domain,
-			background_url: res.locals.client.background_url
+			background_url: res.locals.client.background_url,
+			brand_color: res.locals.client.brand_color
 		});
 });
 
@@ -429,8 +518,16 @@ async function getDiscord(req) {
 async function onStart() {
 	master_db = new Database('Admin_DB');
 	await master_db.initialize();
+	let clients = await updateClients();
+	clients.forEach(client => {
+		console.log(`${client.db_name}: ${client.domain}`);
+	});
+}
+
+async function updateClients() {
+	let old_clients = [];
 	let clients_db = await master_db.get_collection('client');
-	clients_db.forEach(client => {
+	clients_db.forEach(async client => {
 		let domain = client.domain;
 		let db_name = client.db_name;
 		let stripePublicKey = client.stripePublicKey;
@@ -441,6 +538,9 @@ async function onStart() {
 		let client_secret = client.client_secret;
 		let debug = client.debug;
 		let sendgrid_key = client.sendgrid_key;
+		let logo = client.logo;
+		let brand_color = client.brand_color;
+		let inventory = client.inventory;
 		let client_obj = new Client(
 			domain,
 			db_name,
@@ -451,13 +551,15 @@ async function onStart() {
 			client_id,
 			client_secret,
 			sendgrid_key,
+			logo,
+			brand_color,
+			inventory,
 			debug);
 		client_obj.db.initialize();
-		clients.push(client_obj);
+		old_clients.push(client_obj);
 	});
-	clients.forEach(client => {
-		console.log(`${client.db_name}: ${client.domain}`);
-	});
+	clients = old_clients;
+	return clients;
 }
 
 onStart();
@@ -481,10 +583,11 @@ async function sleep(ms) {
 }
 
 class Client {
-	constructor(domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, sendgrid_key, debug = false) {
+	constructor(domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, sendgrid_key, logo, brand_color, inventory, debug = false) {
 		let prefix = debug ? 'debug.' : 'dashboard.';
 		this.hostname = prefix + domain;
 		this.login_url = encodeURI("https://" + this.hostname + '/login');
+		this.pure_domain = domain;
 		this.domain = 'https://' + domain;
 		this.db = new Database(db_name);
 		this.db_name = db_name;
@@ -494,6 +597,9 @@ class Client {
 		this.background_url = background_url;
 		this.client_id = client_id;
 		this.client_secret = client_secret;
+		this.logo = logo;
+		this.brand_color = brand_color;
+		this.inventory = inventory;
 		this.stripe = new Stripe(stripePublicKey, stripeSecretKey);
 		this.email = new Email(sendgrid_key);
 		//this.email.sendMail('ssinghnes@gmail.com', 'noreply@reachedcoding.com', 'FSDFS-SDFSD-SDFSD-SGSER');
