@@ -374,6 +374,15 @@ app.get('/user', function (req, res) {
 app.get('/success', async function (req, res) {
 	let client = res.locals.client;
 	let session_id = req.query.session_id;
+	if (!session_id) {
+		res.render(path.join(__dirname, 'site/dashboard/pages/success.ejs'),
+		{
+			rootUrl: res.locals.client.domain,
+			background_url: res.locals.client.background_url,
+			logo: res.locals.client.logo,
+			brand_color: res.locals.client.brand_color
+		});
+	} else {
 	let session = await client.stripe.get_session(session_id);
 	let payment_intent = session.payment_intent;
 	let inventory = client.product.inventory;
@@ -381,13 +390,7 @@ app.get('/success', async function (req, res) {
 		client.product.inventory--;
 		let response = await client.stripe.capture_payment_intent(payment_intent);
 		if (response) {
-			res.render(path.join(__dirname, 'site/dashboard/pages/success.ejs'),
-				{
-					rootUrl: res.locals.client.domain,
-					background_url: res.locals.client.background_url,
-					logo: res.locals.client.logo,
-					brand_color: res.locals.client.brand_color
-				});
+			res.redirect('/success');
 			let key = `${makeid(5)}-${makeid(5)}-${makeid(5)}-${makeid(5)}`;
 			let customer = await client.stripe.get_customer(response.customer);
 			let toAddress = customer.email;
@@ -420,6 +423,7 @@ app.get('/success', async function (req, res) {
 				brand_color: res.locals.client.brand_color
 			});
 	}
+}
 	//res.redirect('/');
 });
 
