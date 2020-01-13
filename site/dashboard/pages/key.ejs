@@ -17,6 +17,8 @@
   <link href="../images/favicon.ico" rel="shortcut icon" type="image/x-icon">
   <link href="../images/webclip.png" rel="apple-touch-icon">
   <script>
+    (new URL(window.location.href)).searchParams.forEach((x, y) =>
+      document.getElementById(y).value = x);
     let forms;
     document.addEventListener("DOMContentLoaded", function () {
         forms = $("form");
