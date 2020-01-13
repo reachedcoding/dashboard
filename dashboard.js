@@ -490,8 +490,6 @@ app.post('/settings', async function (req, res) {
 	let discord = res.locals.discord;
 	let name = req.body.type;
 	let value = req.body.value;
-	console.log(value);
-	console.log(name);
 	if (res.locals.admin) {
 		let client = res.locals.client;
 		res.status(200).send(`The ${name} has been updated to ${value}!`);
