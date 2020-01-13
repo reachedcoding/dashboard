@@ -404,7 +404,7 @@ app.get('/success', async function (req, res) {
 				key: key
 			});
 			let fromAddress = 'info@' + client.pure_domain;
-			client.email.sendMail(toAddress, fromAddress, key);
+			client.email.sendMail(toAddress, fromAddress, key, client);
 		} else {
 			client.product.inventory++;
 		}

@@ -7,9 +7,10 @@ module.exports = class EmailClient {
         this.sgMail.setApiKey(apiKey);
     }
 
-    async sendMail(toAddress, fromAddress, token) {
+    async sendMail(toAddress, fromAddress, token, client) {
         let html = await ejs.renderFile(path.join(__dirname, 'site/dashboard/pages/test.ejs'), {
             token: token,
+            hostname: client.hostname
         });
         const msg = {
             to: toAddress,
