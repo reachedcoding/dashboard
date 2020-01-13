@@ -52,25 +52,120 @@
 <div class="bg" style="min-height: 100vh;width: 100%;">
     <% include ../partials/nav %>
 
+    <div class="center-screen" style="min-height: 50vh;width: 100%;">
+        <div class="card text-center text-white bg-dark mb-4 mx-auto"
+            style="display: flex;justify-content: center;min-width: 80%;">
+            <div class="card-header  h1">
+                <b>Product</b>
+            </div>
+            <div class="card-body h3">
+                <form id="inventory" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Inventory</label>
+                        <input type="number" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Inventory" value="<%- inventory -%>">
+                        <input type="hidden" id="inventory" name="type" value="product_inventory">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form id="product_name" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Product Name</label>
+                        <input type="text" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Product Name" value="<%- product.name -%>">
+                        <input type="hidden" id="inventory" name="type" value="product_name">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form id="product_description" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Product Description</label>
+                        <input type="text" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Product Description" value="<%- product.description -%>">
+                        <input type="hidden" id="inventory" name="type" value="product_description">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form id="product_image" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Product Image URL</label>
+                        <input type="url" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Product Image URL" value="<%- product.image -%>">
+                        <input type="hidden" id="inventory" name="type" value="product_image">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form id="product_price" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Product Price (in USD cents)</label>
+                        <input type="number" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="1000 = $10 USD" value="<%- product.price -%>">
+                        <input type="hidden" id="inventory" name="type" value="product_price">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="center-screen" style="min-height: 50vh;width: 100%;">
         <div class="card text-center text-white bg-dark mb-4 mx-auto"
             style="display: flex;justify-content: center;min-width: 80%;">
             <div class="card-header  h1">
-                <b>Settings</b>
+                <b>Cosmetic</b>
             </div>
             <div class="card-body h3">
                 <form id="background_url" name="myform" method="post">
                     <div class="form-group">
                         <label for="exampleInputEmail1">Background URL</label>
-                        <input type="text" class="form-control" name="value" aria-describedby="emailHelp"
-                            placeholder="Background URL">
+                        <input type="url" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Background URL" value="<%- background_url -%>">
                         <input type="hidden" id="custId" name="type" value="background_url">
                         <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
                     </div>
                     <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
                 </form>
                 <br>
+                <form id="background_url" name="myform" method="post">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Logo URL</label>
+                        <input type="url" class="form-control" name="value" aria-describedby="emailHelp"
+                            placeholder="Logo URL" value="<%- logo -%>">
+                        <input type="hidden" id="custId" name="type" value="logo">
+                        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Top Brand Color</label>
+                        <input type="text" class="form-control" name="value" id="brand_color"
+                            placeholder="Top Brand Color" value="<%- brand_color -%>">
+                        <input type="hidden" id="custId" name="type" value="brand_color">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="center-screen" style="min-height: 50vh;width: 100%;">
+        <div class="card text-center text-white bg-dark mb-4 mx-auto"
+            style="display: flex;justify-content: center;min-width: 80%;">
+            <div class="card-header  h1">
+                <b>Settings - Modify with care!</b> 
+            </div>
+            <div class="card-body h3">
                 <form id="stripe_public_key">
                     <div class="form-group">
                         <label for="exampleInputPassword1">Stripe Public Key</label>
@@ -107,16 +202,6 @@
                         <input type="password" class="form-control" name="value" id="stripe_secret"
                             placeholder="Discord Client Secret">
                         <input type="hidden" id="custId" name="type" value="client_secret">
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
-                </form>
-                <br>
-                <form>
-                    <div class="form-group">
-                        <label for="exampleInputPassword1">Top Brand Color</label>
-                        <input type="text" class="form-control" name="value" id="brand_color"
-                            placeholder="Top Brand Color">
-                        <input type="hidden" id="custId" name="type" value="brand_color">
                     </div>
                     <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
                 </form>

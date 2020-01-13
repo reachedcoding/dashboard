@@ -92,4 +92,34 @@ module.exports = class Database {
 		await this.database.collection("client").updateOne(queryId, myObj, (err, res) => {
 		}); 
 	}
+
+	async update_bulk_settings(domain, obj, discord_id) {
+		let queryId = { discord_id: discord_id }; //Get the ID of the object
+		let myObj = { 
+			$set: obj
+		  };
+		await this.database.collection("user").updateOne(queryId, myObj, (err, res) => {
+		}); 
+	}
+
+	async check_key(key, discord) {
+		var query = { key: key };
+		let user = await this.database.collection("user").find(query).toArray();
+		if (user && user.length == 1) {
+			if (user[0].discord_id == "") {
+				let date = new Date();
+				let myObj = { 
+					$set: { 
+						discord_id: discord.id, //Whatever you want to change for that ID
+						discord_name: discord.username + '#' + discord.discriminator,
+						next_payment: new Date(date.setMonth(date.getMonth() + 1))
+					}
+				  };
+				await this.database.collection("user").updateOne(query, myObj, (err, res) => {
+				}); 
+				return true;
+			}
+		}
+		return false;
+	}
 }

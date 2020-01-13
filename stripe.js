@@ -10,7 +10,7 @@ module.exports = class Stripe {
     this.stripe = require("stripe")(stripeSecretKey);
   }
 
-  async create_session(domain) {
+  async create_session(domain, price, name, description, image) {
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       payment_intent_data: {
@@ -19,11 +19,12 @@ module.exports = class Stripe {
       },
       line_items: [
         {
-          name: "Cook Group Membership",
-          description: 'This is a cook club membership',
-          amount: 4000,
+          name: name,
+          description: description,
+          amount: price,
           currency: 'usd',
           quantity: 1,
+          images: [image]
         }
       ],
       // subscription_data: {
@@ -40,6 +41,46 @@ module.exports = class Stripe {
       id: session.id,
       pi: session.payment_intent
     };
+  }
+
+  async create_sub(domain, plan) {
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      subscription_data: {
+        items: [{
+          plan: plan, // example = membership
+        }],
+      },
+      // make these pages
+      success_url: `${domain}/paid_subscription?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${domain}/`,
+    });
+    return {
+      session: session,
+      id: session.id,
+      pi: session.payment_intent
+    };
+  }
+
+  async create_plan(price, name) {
+    let plan = await this.stripe.plans.create(
+      {
+        amount: price,
+        currency: 'usd',
+        interval: 'month',
+        product: {name: name},
+        id: `Amount_${price}`
+      });
+    return plan;
+  }
+
+  async get_plan(name) {
+    try {
+    let plan = await this.stripe.plans.retrieve(name);
+    return plan;
+    } catch (e) {
+      return false;
+    }
   }
 
   async capture_payment_intent(payment_intent) {
