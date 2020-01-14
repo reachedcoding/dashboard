@@ -280,10 +280,11 @@ app.get('/login', async function (req, res, next) {
 	next();
 }, function (req, res) {
 	// IF RECEIVED CODE AS SUCCESSFULLY PARSED THEN PASS TO ROOT DOMAIN DIRECTORY ELSE TRY AUTHENTICATING AGIAN
+	let client = res.locals.client;
 	if (res.locals.code)
 		res.redirect('/')
 	else
-		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=608328061699620865&scope=identify%20email%20guilds&redirect_uri=${res.locals.client.login_url}&prompt=consent`);
+		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=${client.client_id}&scope=identify%20email%20guilds&redirect_uri=${res.locals.client.login_url}&prompt=consent`);
 });
 
 // LOGOUT DOMAIN QUERY -- DELETES ACCESS AND REFRESH COOKIES THEN REDIRECTS TO ROOT DOMAIN
