@@ -627,7 +627,7 @@ async function updateClients() {
 	let old_clients = [];
 	let clients_db = await master_db.get_collection('client');
 	clients_db.forEach(async client => {
-		let group_name = group_name;
+		let group_name = client.group_name;
 		let domain = client.domain;
 		let db_name = client.db_name;
 		let stripePublicKey = client.stripePublicKey;
