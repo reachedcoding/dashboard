@@ -57,6 +57,7 @@ app.use('/', async function (req, res, next) {
 		if (!client) {
 			let client = clients.find(client => client.db_name == "ReachedIO");
 			res.status(403).render(path.join(__dirname, 'site/dashboard/pages/not_paid.ejs'), {
+				name: client.group_name,
 				rootUrl: client.domain,
 				background_url: client.background_url
 			});
@@ -85,6 +86,7 @@ app.use('/', async function (req, res, next) {
 	} catch (e) {
 		//console.log(e);
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+			name: res.locals.client.group_name,
 			rootUrl: res.locals.client.domain,
 			background_url: res.locals.client.background_url,
 			logo: res.locals.client.logo
@@ -97,6 +99,7 @@ app.use(function (err, req, res, next) {
 	res.status(500);
 	res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
 		{
+			name: res.locals.client.group_name,
 			rootUrl: res.locals.client.domain,
 			background_url: res.locals.client.background_url,
 			logo: res.locals.client.logo,
@@ -153,6 +156,7 @@ app.get('/', async function (req, res, next) {
 	} catch (e) {
 		console.log(e);
 		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+			name: res.locals.client.group_name,
 			rootUrl: res.locals.client.domain,
 			background_url: res.locals.client.background_url,
 			logo: res.locals.client.logo,
@@ -184,6 +188,7 @@ app.get('/', async function (req, res, next) {
 				let stripePublicKey = res.locals.client.stripePublicKey;
 				res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'),
 					{
+						name: res.locals.client.group_name,
 						rootUrl: res.locals.client.domain,
 						background_url: res.locals.client.background_url,
 						logo: res.locals.client.logo,
@@ -200,6 +205,7 @@ app.get('/', async function (req, res, next) {
 			} else {
 				res.render(path.join(__dirname, 'site/dashboard/pages/key.ejs'),
 					{
+						name: res.locals.client.group_name,
 						rootUrl: res.locals.client.domain,
 						background_url: res.locals.client.background_url,
 						logo: res.locals.client.logo,
@@ -210,6 +216,7 @@ app.get('/', async function (req, res, next) {
 			}
 		} else {
 			res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+				name: res.locals.client.group_name,
 				rootUrl: res.locals.client.domain,
 				background_url: res.locals.client.background_url,
 				logo: res.locals.client.logo,
@@ -219,6 +226,7 @@ app.get('/', async function (req, res, next) {
 	} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/admin.ejs'),
 			{
+				name: res.locals.client.group_name,
 				users: res.locals.users,
 				rootUrl: res.locals.client.domain,
 				background_url: res.locals.client.background_url,
@@ -297,6 +305,7 @@ app.get('/logout', async function (req, res) {
 // NOT REALLY IMPLEMENTED YET BUT MAY SERVE AS A HOMEPAGE
 app.get('/home', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
+		name: res.locals.client.group_name,
 		rootUrl: res.locals.client.domain,
 		background_url: res.locals.client.background_url,
 		logo: res.locals.client.logo,
@@ -323,6 +332,7 @@ app.get('/checkout', async function (req, res) {
 			client: res.locals.client
 		});
 		res.render(path.join(__dirname, 'site/dashboard/pages/checkout.ejs'), {
+			name: res.locals.client.group_name,
 			rootUrl: res.locals.client.domain,
 			background_url: res.locals.client.background_url,
 			token: token,
@@ -334,6 +344,7 @@ app.get('/checkout', async function (req, res) {
 	} else {
 		res.render(path.join(__dirname, 'site/dashboard/pages/sold_out.ejs'),
 			{
+				name: res.locals.client.group_name,
 				rootUrl: res.locals.client.domain,
 				background_url: res.locals.client.background_url,
 				logo: res.locals.client.logo,
@@ -367,6 +378,7 @@ app.get('/paid_subscription', async function (req, res) {
 
 app.get('/user', function (req, res) {
 	res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'), {
+		name: res.locals.client.group_name,
 		discord_id: res.locals.discord.id,
 		logo: res.locals.client.logo
 	});
@@ -378,6 +390,7 @@ app.get('/success', async function (req, res) {
 	if (!session_id) {
 		res.render(path.join(__dirname, 'site/dashboard/pages/success.ejs'),
 			{
+				name: res.locals.client.group_name,
 				rootUrl: res.locals.client.domain,
 				background_url: res.locals.client.background_url,
 				logo: res.locals.client.logo,
@@ -418,6 +431,7 @@ app.get('/success', async function (req, res) {
 			}
 			res.render(path.join(__dirname, 'site/dashboard/pages/sold_out.ejs'),
 				{
+					name: res.locals.client.group_name,
 					rootUrl: res.locals.client.domain,
 					background_url: res.locals.client.background_url,
 					logo: res.locals.client.logo,
@@ -483,6 +497,7 @@ app.get('/settings', async function (req, res) {
 	if (res.locals.admin)
 		res.render(path.join(__dirname, 'site/dashboard/pages/settings.ejs'),
 			{
+				name: res.locals.client.group_name,
 				rootUrl: res.locals.client.domain,
 				background_url: res.locals.client.background_url,
 				logo: res.locals.client.logo,
@@ -538,6 +553,7 @@ app.get('*', function (req, res) {
 	res.status(404);
 	res.render(path.join(__dirname, 'site/dashboard/pages/error.ejs'),
 		{
+			name: res.locals.client.group_name,
 			rootUrl: res.locals.client.domain,
 			background_url: res.locals.client.background_url,
 			brand_color: res.locals.client.brand_color
