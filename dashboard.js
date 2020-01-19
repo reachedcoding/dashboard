@@ -16,6 +16,7 @@ require('log-timestamp');
 const Database = require('./database');
 const Stripe = require('./stripe');
 const Email = require('./email');
+const Discord = require('discord.js');
 
 //const Client = require('./client');
 
@@ -175,8 +176,7 @@ app.get('/', async function (req, res, next) {
 				let date = next_payment.toLocaleDateString();
 				let sub_id = user.sub_id;
 				let plan = await res.locals.client.stripe.get_plan(`Amount_${res.locals.client.product.price}`);
-				if (!plan) 
-				{
+				if (!plan) {
 					plan = await res.locals.client.stripe.create_plan(res.locals.client.product.price, res.locals.client.product.name);
 				}
 				let SI = await res.locals.client.stripe.create_sub('https://' + res.locals.client.hostname, `Amount_${res.locals.client.product.price}`);
@@ -377,54 +377,54 @@ app.get('/success', async function (req, res) {
 	let session_id = req.query.session_id;
 	if (!session_id) {
 		res.render(path.join(__dirname, 'site/dashboard/pages/success.ejs'),
-		{
-			rootUrl: res.locals.client.domain,
-			background_url: res.locals.client.background_url,
-			logo: res.locals.client.logo,
-			brand_color: res.locals.client.brand_color
-		});
-	} else {
-	let session = await client.stripe.get_session(session_id);
-	let payment_intent = session.payment_intent;
-	let inventory = client.product.inventory;
-	if (inventory > 0) {
-		client.product.inventory--;
-		let response = await client.stripe.capture_payment_intent(payment_intent);
-		if (response) {
-			res.redirect('/success');
-			let key = `${makeid(5)}-${makeid(5)}-${makeid(5)}-${makeid(5)}`;
-			let customer = await client.stripe.get_customer(response.customer);
-			let toAddress = customer.email;
-			client.db.add_user({
-				discord_id: '',
-				sub_id: '',
-				cust_id: '',
-				discord_name: '',
-				next_payment: '',
-				email: toAddress,
-				key: key
-			});
-			let fromAddress = 'info@' + client.pure_domain;
-			client.email.sendMail(toAddress, fromAddress, key, client);
-		} else {
-			client.product.inventory++;
-		}
-		await client.db.update_settings(client.pure_domain, 'inventory', inventory)
-	} else {
-		try {
-			await cancel_payment_intent(payment_intent);
-		} catch (e) {
-
-		}
-		res.render(path.join(__dirname, 'site/dashboard/pages/sold_out.ejs'),
 			{
 				rootUrl: res.locals.client.domain,
 				background_url: res.locals.client.background_url,
 				logo: res.locals.client.logo,
 				brand_color: res.locals.client.brand_color
 			});
+	} else {
+		let session = await client.stripe.get_session(session_id);
+		let payment_intent = session.payment_intent;
+		let inventory = client.product.inventory;
+		if (inventory > 0) {
+			client.product.inventory--;
+			let response = await client.stripe.capture_payment_intent(payment_intent);
+			if (response) {
+				res.redirect('/success');
+				let key = `${makeid(5)}-${makeid(5)}-${makeid(5)}-${makeid(5)}`;
+				let customer = await client.stripe.get_customer(response.customer);
+				let toAddress = customer.email;
+				client.db.add_user({
+					discord_id: '',
+					sub_id: '',
+					cust_id: '',
+					discord_name: '',
+					next_payment: '',
+					email: toAddress,
+					key: key
+				});
+				let fromAddress = 'info@' + client.pure_domain;
+				client.email.sendMail(toAddress, fromAddress, key, client);
+			} else {
+				client.product.inventory++;
+			}
+			await client.db.update_settings(client.pure_domain, 'inventory', inventory)
+		} else {
+			try {
+				await cancel_payment_intent(payment_intent);
+			} catch (e) {
+
+			}
+			res.render(path.join(__dirname, 'site/dashboard/pages/sold_out.ejs'),
+				{
+					rootUrl: res.locals.client.domain,
+					background_url: res.locals.client.background_url,
+					logo: res.locals.client.logo,
+					brand_color: res.locals.client.brand_color
+				});
+		}
 	}
-}
 	//res.redirect('/');
 });
 
@@ -465,10 +465,15 @@ app.post('/key', async function (req, res) {
 
 app.post('/remove', async function (req, res) {
 	let discord_id = req.body.discord_id;
+	let client = res.locals.client;
 	if (res.locals.admin) {
 		let client = res.locals.client;
 		client.db.remove_user(discord_id);
-		res.status(200).send('Ok!');
+		let response = await client.remove_role(discord_id);
+		if (!response)
+			res.status(200).send('That user or guild has not been found; The user has been removed from the database!');
+		else
+			res.status(200).send('Ok!');
 	} else {
 		res.status(403).send('Unauthorized!');
 	}
@@ -622,6 +627,7 @@ async function updateClients() {
 	let old_clients = [];
 	let clients_db = await master_db.get_collection('client');
 	clients_db.forEach(async client => {
+		let group_name = group_name;
 		let domain = client.domain;
 		let db_name = client.db_name;
 		let stripePublicKey = client.stripePublicKey;
@@ -630,6 +636,9 @@ async function updateClients() {
 		let background_url = client.background_url;
 		let client_id = client.client_id;
 		let client_secret = client.client_secret;
+		let bot_token = client.bot_token;
+		let role_id = client.role_id;
+		let guild_id = client.guild_id;
 		let debug = client.debug;
 		let sendgrid_key = client.sendgrid_key;
 		let logo = client.logo;
@@ -642,6 +651,7 @@ async function updateClients() {
 			inventory: client.product_inventory
 		};
 		let client_obj = new Client(
+			group_name,
 			domain,
 			db_name,
 			stripePublicKey,
@@ -650,6 +660,9 @@ async function updateClients() {
 			background_url,
 			client_id,
 			client_secret,
+			bot_token,
+			role_id,
+			guild_id,
 			sendgrid_key,
 			logo,
 			brand_color,
@@ -683,7 +696,8 @@ async function sleep(ms) {
 }
 
 class Client {
-	constructor(domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, sendgrid_key, logo, brand_color, product, debug = false) {
+	constructor(group_name, domain, db_name, stripePublicKey, stripeSecretKey, signing_secret, background_url, client_id, client_secret, bot_token, role_id, guild_id, sendgrid_key, logo, brand_color, product, debug = false) {
+		this.group_name = group_name;
 		let prefix = debug ? 'debug.' : 'dashboard.';
 		this.hostname = prefix + domain;
 		this.login_url = encodeURI("https://" + this.hostname + '/login');
@@ -695,14 +709,55 @@ class Client {
 		this.stripeSecretKey = stripeSecretKey;
 		this.signing_secret = signing_secret;
 		this.background_url = background_url;
+		this.role_id = role_id;
 		this.client_id = client_id;
 		this.client_secret = client_secret;
+		this.bot_token = bot_token;
+		this.guild_id = guild_id;
+		this.client = new Discord.Client();
+		this.client.login(bot_token);
 		this.logo = logo;
 		this.brand_color = brand_color;
 		this.product = product;
 		this.stripe = new Stripe(stripePublicKey, stripeSecretKey);
 		this.email = new Email(sendgrid_key);
 		//this.email.sendMail('ssinghnes@gmail.com', 'noreply@reachedcoding.com', 'FSDFS-SDFSD-SDFSD-SGSER');
+	}
+
+	async add_role(discord_id) {
+		try {
+			let guild = client.guilds.get(this.guild_id);
+			let member = await this.client.fetchUser(discord_id);
+			let user = await guild.fetchMember(member);
+			if (user) {
+				let role = await guild.roles.find(r => r.id === this.role_id);
+				let success = await user.addRole(role);
+				if (success) {
+					return true;
+				}
+			}
+			return false;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	async remove_role(discord_id) {
+		try {
+			let guild = client.guilds.get(this.guild_id);
+			let member = await this.client.fetchUser(discord_id);
+			let user = await guild.fetchMember(member);
+			if (user) {
+				let role = await guild.roles.find(r => r.id === this.role_id);
+				let success = await user.removeRole(role);
+				if (success) {
+					return true;
+				}
+			}
+			return false;
+		} catch (e) {
+			return false;
+		}
 	}
 
 	async initialize() {

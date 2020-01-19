@@ -155,6 +155,16 @@
                     </div>
                     <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
                 </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Group Name</label>
+                        <input type="text" class="form-control" name="value" id="brand_color"
+                            placeholder="Group Name" value="<%- brand_color -%>">
+                        <input type="hidden" id="custId" name="type" value="group_name">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
             </div>
         </div>
     </div>
@@ -166,6 +176,16 @@
                 <b>Settings - Modify with care!</b> 
             </div>
             <div class="card-body h3">
+                <form id="stripe_public_key">
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Discord Role ID</label>
+                        <input type="password" class="form-control" name="value" id="stripe_public"
+                            placeholder="000000000000000000">
+                        <input type="hidden" id="custId" name="type" value="role_id">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
                 <form id="stripe_public_key">
                     <div class="form-group">
                         <label for="exampleInputPassword1">Stripe Public Key</label>
@@ -202,6 +222,26 @@
                         <input type="password" class="form-control" name="value" id="stripe_secret"
                             placeholder="Discord Client Secret">
                         <input type="hidden" id="custId" name="type" value="client_secret">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Discord Bot Token</label>
+                        <input type="password" class="form-control" name="value" id="stripe_secret"
+                            placeholder="Discord Bot Token">
+                        <input type="hidden" id="custId" name="type" value="bot_token">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
+                </form>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Discord Guild ID</label>
+                        <input type="password" class="form-control" name="value" id="guild_id"
+                            placeholder="Discord Guild ID">
+                        <input type="hidden" id="custId" name="type" value="guild_id">
                     </div>
                     <button type="submit" class="btn btn-primary" style="background-color: #<%- brand_color -%>;">Submit</button>
                 </form>
