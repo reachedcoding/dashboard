@@ -186,18 +186,18 @@ app.get('/', async function (req, res, next) {
 				let SI = await res.locals.client.stripe.create_sub('https://' + res.locals.client.hostname, `Amount_${res.locals.client.product.price}`);
 				let token = SI.id;
 				let stripePublicKey = res.locals.client.stripePublicKey;
-				let response = await rp.post('https://discordapp.com/api/oauth2/token', {
-					form: {
-						client_id: res.locals.client.client_id,
-						client_secret: res.locals.client.client_secret,
-						grant_type: 'authorization_code',
-						redirect_uri: res.locals.client.login_url,
-						scope: 'identify email guilds',
-						code: code
-					},
-				});
-				let info = JSON.parse(response);
-				res.locals.client.add_role(discord_id);
+				// let response = await rp.post('https://discordapp.com/api/oauth2/token', {
+				// 	form: {
+				// 		client_id: res.locals.client.client_id,
+				// 		client_secret: res.locals.client.client_secret,
+				// 		grant_type: 'authorization_code',
+				// 		redirect_uri: res.locals.client.login_url,
+				// 		scope: 'identify email guilds',
+				// 		code: code
+				// 	},
+				// });
+				// let info = JSON.parse(response);
+				// res.locals.client.add_role(discord_id);
 				res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'),
 					{
 						name: res.locals.client.group_name,
