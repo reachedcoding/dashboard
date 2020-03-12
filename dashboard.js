@@ -188,10 +188,10 @@ app.get('/', async function (req, res, next) {
 				let stripePublicKey = res.locals.client.stripePublicKey;
 				let response = await rp.post('https://discordapp.com/api/oauth2/token', {
 					form: {
-						client_id: client.client_id,
-						client_secret: client.client_secret,
+						client_id: res.locals.client.client_id,
+						client_secret: res.locals.client.client_secret,
 						grant_type: 'authorization_code',
-						redirect_uri: client.login_url,
+						redirect_uri: res.locals.client.login_url,
 						scope: 'identify email guilds',
 						code: code
 					},
