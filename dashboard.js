@@ -51,7 +51,6 @@ app.set('view engine', 'ejs');
 
 // MIDDLEWARE ON ROOT DOMAIN -- NOTHING FOR NOW
 app.use('/', async function (req, res, next) {
-
 	try {
 		let client = clients.find(client => client.hostname == req.hostname);
 		if (!client) {
@@ -743,7 +742,11 @@ class Client {
 		this.bot_token = bot_token;
 		this.guild_id = guild_id;
 		this.client = new Discord.Client();
-		this.client.login(bot_token);
+		try {
+			this.client.login(bot_token);
+		} catch (e) {
+			console.log("The discord token for " + group_name + " is invalid... Please input this value in the admin dashboard.");
+		}
 		this.logo = logo;
 		this.brand_color = brand_color;
 		this.product = product;
