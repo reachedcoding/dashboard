@@ -2,10 +2,10 @@
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
-var privateKey = fs.readFileSync('ssl/key.pem', 'utf8');
-var certificate = fs.readFileSync('ssl/cert.pem', 'utf8');
+// var privateKey = fs.readFileSync('ssl/key.pem', 'utf8');
+// var certificate = fs.readFileSync('ssl/cert.pem', 'utf8');
 var util = require('util');
-var credentials = { key: privateKey, cert: certificate };
+// var credentials = { key: privateKey, cert: certificate };
 var express = require('express');
 var app = express();
 var path = require('path');
@@ -709,7 +709,7 @@ var database, collection;
 
 // CREATES SERVER FROM APP LOGIC -- BOTH HTTP AND HTTPS
 var httpServer = http.createServer(app);
-var httpsServer = https.createServer(credentials, app);
+var httpsServer = https.createServer(app);
 
 // LISTEN ON HTTP AND HTTPS PORTS AND SERVE
 httpsServer.listen(443, () => {
