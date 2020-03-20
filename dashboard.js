@@ -459,7 +459,7 @@ app.post('/charge', async function (req, res) {
 });
 
 app.post('/pause-subscription', async function (req, res) {
-	console.log('hello');
+	console.log('Pause-subscription');
 	let discord_id = res.locals.discord.id;
 	if (res.locals.admin) {
 		let client = res.locals.client;

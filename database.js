@@ -14,7 +14,6 @@ module.exports = class Database {
 	constructor(DATABASE_NAME) {
 		this.DATABASE_NAME = DATABASE_NAME;
 	}
-
 	async initialize() {
 		let client = await MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true });
 		this.database = client.db(this.DATABASE_NAME);

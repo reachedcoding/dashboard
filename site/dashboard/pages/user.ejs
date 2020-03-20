@@ -28,6 +28,10 @@
             }
         });
     }
+
+    function logout() {
+      location.href = 'logout';
+    }
 </script>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
@@ -63,9 +67,9 @@
           <% if (!subscribed) { %>
           <div class="w-col w-col-6"><a onclick="redirectToCheckout();" class="button4 w-button"><font color="white">Add Subscription</font></a></div>
           <% } else { %>
-            <div class="w-col w-col-6"><a onclick="submitButton();" class="button4 w-button"><font color="white">Logout</font></a></div>
+            <div class="w-col w-col-6"><a onclick="submitButton();" class="button4 w-button"><font color="white">Pause Subscription</font></a></div>
             <% } %>
-          <div class="w-col w-col-6"><a href="/logout" class="button5 w-button">Logout</a></div>
+          <div class="w-col w-col-6"><a onclick="logout()" class="button5 w-button"><font color="white">Logout</font></a></div>
         </div>
       </div>
     </div>
