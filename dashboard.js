@@ -66,14 +66,17 @@ app.use('/', async function (req, res, next) {
 			if (req.path != '/login' && req.cookies.a && req.cookies.r) {
 				res.locals.discord = await getDiscord(req);
 				res.locals.id = res.locals.discord.id;
-				res.locals.user = await client.db.get_user(res.locals.id);
-				if (res.locals.user.type == 'admin') {
+				try {
+					res.locals.user = await client.db.get_user(res.locals.id);
+				} catch {
+					res.locals.user = false;
+				}
+				if (res.locals.user.admin) {
 					res.locals.admin = true;
 				} else {
 					res.locals.admin = false;
 				}
 				if (req.method === 'GET' || req.method === 'HEAD') {
-
 					next();
 				} else {
 					let code = req.query.code;
@@ -108,142 +111,16 @@ app.use(function (err, req, res, next) {
 
 // ROOT DOMAIN QUERY
 
-app.get('/', async function (req, res, next) {
-	let discordUser;
-	try {
-		let discord = res.locals.discord;
-		//console.log(discord);
-		if (discord) {
-			let id = discord.id;
-			if (id) {
-				if (res.locals.admin) {
-					let db = res.locals.client.db;
-					// FIND AN ID IN THE DATABASE WITH THE SAME ID AND RETURN ALL DATABASE DATA FOR THAT KEY
-					// IF NOT FOUND, ADD TO THE DATABASE AND REFRESH
-					let users = await db.get_collection('user');
-					if (!users) {
-						res.redirect('/error');
-					} else {
-						let index = 1;
-						let consumers = [];
-						for (let user of users) {
-							let next_payment = new Date(user.next_payment);
-							// console.log(next_payment);
-							// console.log(typeof next_payment);
-							let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
-							let date = next_payment.toLocaleDateString();
-							consumers.push({ "index": index, "discord_id": user.discord_id, "next_payment": date, "days_left": days, "sub_id": user.sub_id, "cust_id": user.cust_id, "discord_name": user.discord_name, "key": user.key });
-							index++;
-						}
-						res.locals.users = consumers;
-
-					}
-				} else {
-					let db = res.locals.client.db;
-
-					let user = await db.find_user(id);
-					if (user.length == 0) {
-						res.locals.user = false;
-					} else {
-						res.locals.user = user[0];
-					}
-				}
-			}
-		}
-		// ALLOWS PASSING OF THE DISCORD USER_OBJECT BETWEEN METHODS
-		next();
-	} catch (e) {
-		console.log(e);
-		res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
-			name: res.locals.client.group_name,
-			rootUrl: res.locals.client.domain,
-			background_url: res.locals.client.background_url,
-			logo: res.locals.client.logo,
-			brand_color: res.locals.client.brand_color
-		});
-	}
-
-}, async function (req, res) {
+app.get('/', async function (req, res) {
 	// CHECKS WHETHER DATA HAS BEEN RECEIVED AND SHOWS IT OR SHOWS THE MAIN LOGIN SCREEN
 	if (!res.locals.admin) {
 		if (req.cookies.a) {
-			let discord = res.locals.discord;
-			let discord_id = discord.id;
-			let discord_name = discord.username + '#' + discord.discriminator;
-			let avatar = discord.avatar;
-			let discord_image = `https://cdn.discordapp.com/avatars/${discord_id}/${avatar}`;
-			if (res.locals.user) {
-				let user = res.locals.user;
-				let next_payment = new Date(user.next_payment);
-				let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
-				let date = next_payment.toLocaleDateString();
-				let sub_id = user.sub_id;
-				let plan = await res.locals.client.stripe.get_plan(`Amount_${res.locals.client.product.price}`);
-				if (!plan) {
-					plan = await res.locals.client.stripe.create_plan(res.locals.client.product.price, res.locals.client.product.name);
-				}
-				let SI = await res.locals.client.stripe.create_sub('https://' + res.locals.client.hostname, `Amount_${res.locals.client.product.price}`);
-				let token = SI.id;
-				let stripePublicKey = res.locals.client.stripePublicKey;
-				// let response = await rp.post('https://discordapp.com/api/oauth2/token', {
-				// 	form: {
-				// 		client_id: res.locals.client.client_id,
-				// 		client_secret: res.locals.client.client_secret,
-				// 		grant_type: 'authorization_code',
-				// 		redirect_uri: res.locals.client.login_url,
-				// 		scope: 'identify email guilds',
-				// 		code: code
-				// 	},
-				// });
-				// let info = JSON.parse(response);
-				// res.locals.client.add_role(discord_id);
-				res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'),
-					{
-						name: res.locals.client.group_name,
-						rootUrl: res.locals.client.domain,
-						background_url: res.locals.client.background_url,
-						logo: res.locals.client.logo,
-						brand_color: res.locals.client.brand_color,
-						discord_name: discord_name,
-						discord_image: discord_image,
-						type: 'Monthly',
-						key: user.key,
-						next_payment: sub_id != "" ? 'Your payment is valid until ' + date : 'You do not have a current subscription',
-						subscribed: sub_id != "" ? true : false,
-						token: token,
-						stripePublicKey: stripePublicKey
-					});
-			} else {
-				res.render(path.join(__dirname, 'site/dashboard/pages/key.ejs'),
-					{
-						name: res.locals.client.group_name,
-						rootUrl: res.locals.client.domain,
-						background_url: res.locals.client.background_url,
-						logo: res.locals.client.logo,
-						brand_color: res.locals.client.brand_color,
-						discord_name: discord_name,
-						discord_image: discord_image
-					});
-			}
+			res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'));
 		} else {
-			res.render(path.join(__dirname, 'site/dashboard/pages/home.ejs'), {
-				name: res.locals.client.group_name,
-				rootUrl: res.locals.client.domain,
-				background_url: res.locals.client.background_url,
-				logo: res.locals.client.logo,
-				brand_color: res.locals.client.brand_color
-			});
+			res.redirect('/login');
 		}
 	} else {
-		res.render(path.join(__dirname, 'site/dashboard/pages/admin.ejs'),
-			{
-				name: res.locals.client.group_name,
-				users: res.locals.users,
-				rootUrl: res.locals.client.domain,
-				background_url: res.locals.client.background_url,
-				logo: res.locals.client.logo,
-				brand_color: res.locals.client.brand_color
-			});
+		res.render(path.join(__dirname, 'site/dashboard/pages/admin.ejs'));
 	}
 });
 
@@ -303,7 +180,7 @@ app.get('/login', async function (req, res, next) {
 	if (res.locals.code)
 		res.redirect('/')
 	else
-		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=${client.client_id}&scope=identify%20email%20guilds&redirect_uri=${res.locals.client.login_url}&prompt=consent`);
+		res.redirect(`https://discordapp.com/api/oauth2/authorize?response_type=code&client_id=${client.client_id}&scope=identify%20email%20guilds%20guilds.join&redirect_uri=${res.locals.client.login_url}&prompt=consent`);
 });
 
 // LOGOUT DOMAIN QUERY -- DELETES ACCESS AND REFRESH COOKIES THEN REDIRECTS TO ROOT DOMAIN
@@ -453,6 +330,159 @@ app.get('/success', async function (req, res) {
 	//res.redirect('/');
 });
 
+app.get('/user-info', async function (req, res) {
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let discord = res.locals.discord;
+	let discord_id = discord.id;
+	let email = discord.email;
+	let discord_name = discord.username + '#' + discord.discriminator;
+	if (!user) {
+		let customer_id = await client.stripe.create_customer(discord);
+		let userObj = {
+			discord: {
+				id: discord_id,
+				username: discord.username,
+				avatar: discord.avatar,
+				discriminator: discord.discriminator,
+				email: email,
+				verified: discord.verified,
+				locale: discord.locale,
+				mfa_enabled: discord.mfa_enabled,
+				flags: discord.flags,
+				premium_type: discord.premium_type
+			},
+			customer_id: customer_id,
+			first_login: new Date(),
+			card: false,
+			membership: false,
+			admin: false,
+		};
+		user = await client.db.add_user(userObj);
+	} else {
+		client.db.update_user(user.discord.id, 'discord', {
+			id: discord_id,
+			username: discord.username,
+			avatar: discord.avatar,
+			discriminator: discord.discriminator,
+			email: email,
+			verified: discord.verified,
+			locale: discord.locale,
+			mfa_enabled: discord.mfa_enabled,
+			flags: discord.flags,
+			premium_type: discord.premium_type
+		});
+	}
+	let customer_id = user.customer_id;
+	let session_id = await client.stripe.create_payment_method(client.hostname, customer_id);
+	let card = user.card;
+	let avatar = discord.avatar;
+	let discord_image = `https://cdn.discordapp.com/avatars/${discord_id}/${avatar}`;
+	let next_payment = new Date(user.next_payment);
+	let days = ((next_payment - new Date()) / (1000 * 3600 * 24)).toFixed(2) + ' days';
+	let date = next_payment.toLocaleDateString();
+	let sub_id = user.sub_id;
+	let plan = await res.locals.client.stripe.get_plan(`Amount_${res.locals.client.product.price}`);
+	if (!plan) {
+		plan = await res.locals.client.stripe.create_plan(res.locals.client.product.price, res.locals.client.product.name);
+	}
+	let SI = await res.locals.client.stripe.create_sub('https://' + res.locals.client.hostname, `Amount_${res.locals.client.product.price}`);
+	let token = SI.id;
+	let stripePublicKey = res.locals.client.stripePublicKey;
+	let plan_price = 2500;
+	plan_price = (plan_price / 100).toFixed(2);
+	let data = {
+		name: res.locals.client.group_name,
+		rootUrl: res.locals.client.domain,
+		background_url: res.locals.client.background_url,
+		logo: res.locals.client.logo,
+		brand_color: res.locals.client.brand_color,
+		discord_name: discord_name,
+		discord_image: discord_image,
+		discord_email: email,
+		discord_status: "Not joined",
+		type: 'Monthly',
+		key: user.key,
+		next_payment: sub_id != "" ? 'Your payment is valid until ' + date : 'You do not have a current subscription',
+		subscribed: sub_id != "" ? true : false,
+		session_id: session_id,
+		stripePublicKey: stripePublicKey,
+		plan_price: plan_price,
+		plan_status: "Paid",
+		card: card,
+		membership: false,
+	};
+	res.send(JSON.stringify(data));
+});
+
+app.get('/admin-info', async function (req, res) {
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let discord = res.locals.discord;
+	let discord_id = discord.id;
+	let email = discord.email;
+	let discord_name = discord.username + '#' + discord.discriminator;
+	client.db.update_user(user.discord.id, 'discord', {
+		id: discord_id,
+		username: discord.username,
+		avatar: discord.avatar,
+		discriminator: discord.discriminator,
+		email: email,
+		verified: discord.verified,
+		locale: discord.locale,
+		mfa_enabled: discord.mfa_enabled,
+		flags: discord.flags,
+		premium_type: discord.premium_type
+	});
+	let avatar = discord.avatar;
+	let discord_image = `https://cdn.discordapp.com/avatars/${discord_id}/${avatar}`;
+	let data = {
+		name: res.locals.client.group_name,
+		rootUrl: res.locals.client.domain,
+		background_url: res.locals.client.background_url,
+		logo: res.locals.client.logo,
+		brand_color: res.locals.client.brand_color,
+		discord_name: discord_name,
+		discord_image: discord_image,
+		discord_email: email,
+		discord_status: "Not joined",
+	};
+	if (user.admin)
+		res.send(JSON.stringify(data));
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.get('/admin-users', async function (req, res) {
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let discord = res.locals.discord;
+
+	let users = await client.db.get_collection('user');
+	if (user.admin)
+		res.send(JSON.stringify(users));
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.get('/payment-method', async function (req, res) {
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let session_id = req.query.session_id;
+	if (!user || !session_id) { res.redirect('/'); return; }
+	await client.db.update_user(user.discord.id, 'card', true);
+	res.redirect('/');
+});
+
+app.post('/remove-card', async function (req, res) {
+	let client = res.locals.client;
+	let discord = res.locals.discord;
+	let user = res.locals.user;
+	await client.db.update_user(discord.id, 'card', false);
+	res.redirect('/');
+	await client.stripe.delete_all_cards(user.customer_id)
+});
+
 app.post('/charge', async function (req, res) {
 	const token = req.body.stripeToken;
 	const charge = await s.single_charge(token);
@@ -558,7 +588,6 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
 	// Return a response to acknowledge receipt of the event
 	res.json({ received: true });
 });
-
 
 app.get('*', function (req, res) {
 	res.status(404);

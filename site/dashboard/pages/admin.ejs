@@ -1,80 +1,166 @@
-<!-- views/pages/about.ejs -->
-
 <!DOCTYPE html>
-<html lang="en">
+<!--  This site was created in Webflow. http://www.webflow.com  -->
+<!--  Last Published: Sun Dec 08 2019 00:02:21 GMT+0000 (Coordinated Universal Time)  -->
+<html data-wf-page="5dec0ab8e942e7705f3f8ffc" data-wf-site="5dec0ab8e942e734c53f8ffb">
 
 <head>
-    <% include ../partials/head %>
-    <script>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="../css/main.css" rel="stylesheet" type="text/css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="../js/admin.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <link rel="stylesheet" href="../css/dark-mode.css">
 
-        function submitButton(id, name, date) {
-            if (id != "")
-            $.ajax({
-                type: 'post',
-                url: 'remove',
-                data: `discord_id=${id}`,
-                success: function () {
-                    $(".alert").show();
-                    document.querySelector('#alert-text').textContent = name;
-                    document.querySelector('#date-text').textContent = date;
-                }
-            });
-        }
-    </script>
+    <% include ../partials/head %>
+
 </head>
 
-<div class="container-fluid bg" style="min-height: 100%;">
-    <% include ../partials/nav %>
-
-    <div style="  max-height: 1000px;overflow: auto;">
-        <div class="table-responsive" style="border: none;padding-top: 3rem;padding-bottom: 3rem;">
-            <table style="width: 90%; padding: 0.5rem; margin: auto;text-align: center;vertical-align: middle;"
-                class="table table-hover table-dark table-curved">
-                <thead>
-                    <tr class="h5" style="border-top: none;">
-                        <th scope="col" style="vertical-align: middle;">#</th>
-                        <th scope="col" style="vertical-align: middle;">Key</th>
-                        <th scope="col" style="vertical-align: middle;">Discord Name</th>
-                        <th scope="col" style="vertical-align: middle;">Discord ID</th>
-                        <th scope="col" style="vertical-align: middle;">Next Payment Date</th>
-                        <th scope="col" style="vertical-align: middle;">Days Left</th>
-                        <th scope="col" style="vertical-align: middle;">Subscription ID</th>
-                        <th scope="col" style="vertical-align: middle;">Customer ID</th>
-                        <th scope="col" style="vertical-align: middle;">Kick</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% users.forEach(function(user){ %>
-                    <tr class="">
-                        <th scope="row" style="vertical-align: middle;"><%= user.index %></th>
-                        <th style="vertical-align: middle;"><%= user.key %></th>
-                        <th style="vertical-align: middle;"><%= user.discord_name %></th>
-                        <th style="vertical-align: middle;"><%= user.discord_id %></th>
-                        <th style="vertical-align: middle;"><%= user.next_payment %></th>
-                        <th style="vertical-align: middle;"><%= user.days_left %></th>
-                        <th style="vertical-align: middle;"><%= user.sub_id %></th>
-                        <th style="vertical-align: middle;"><%= user.cust_id %></th>
-                        <th style="vertical-align: middle;">
-                            <button type="button"
-                                onclick="submitButton('<%= user.discord_id %>', '<%= user.discord_name %>', '<%= user.next_payment %>')"
-                                class="btn btn-danger">Remove</button>
-                        </th>
-                        <% }) %>
-
-                    </tr>
-                </tbody>
-            </table>
+<div class="bg" style="min-height: 100%; align-items: center; align-content: center;" id="background">
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand " href="/">
+            <img src="" width="30" height="30" class="group_image d-inline-block align-top image-cropper" alt="" id="">
+            <div class="group_name" style="display:inline;"></div>
+        </a>
+        <!-- <div class="nav-link ">
+      <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="darkSwitch">
+        <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
+      </div>
+    </div> -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/settings">Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
         </div>
-    </div>
+    </nav>
+
+    <body class="body">
+        <div class="card text-dark bg-light mb-3" style="margin: 5vw;height: 100%;">
+            <div class="card-body">
+
+                <ul class="nav nav-pills" id="myTab" role="tablist" style="margin-bottom: 1rem;">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                            aria-controls="home" aria-selected="true">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="users-tab" data-toggle="tab" href="#users" role="tab"
+                            aria-controls="users" aria-selected="false">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="releases-tab" data-toggle="tab" href="#releases" role="tab"
+                            aria-controls="releases" aria-selected="false">Releases</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="keys-tab" data-toggle="tab" href="#keys" role="tab"
+                            aria-controls="keys" aria-selected="false">Keys</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="graph-tab" data-toggle="tab" href="#graphs" role="tab"
+                            aria-controls="graphs" aria-selected="false">Graphs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
+                            aria-controls="contact" aria-selected="false">Contact</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="row">
+                            <div class="col mb-4">
+                                <div class="card h-100" style="height: 100%;">
+                                    <div class="card-body">
+                                        <h1 class="card-title"><img src="" width="40" height="40"
+                                                class="d-inline-block align-middle image-cropper" alt=""
+                                                id="user_image"> <a id="user_name"></a>
+                                        </h1>
+                                        <p class="card-text">
+                                            <div style="font-size: 200%;">
+                                                <a id="user_email"></a>
+                                            </div>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer text-muted" style="">
+                                        Status: <a id="discord_status"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h1 class="card-title">Test<a id="user_name"></a>
+                                        </h1>
+                                        <p class="card-text">
+                                            <div style="font-size: 200%;">
+                                                <a id="user_email"></a>
+                                            </div>
+                                        </p>
+                                    </div>
+                                    <div class="card-footer text-muted" style="">
+                                        Status: <a id="discord_status"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+                        <div class="" id="user_list">
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="releases" role="tabpanel" aria-labelledby="releases-tab">
+                        
+                    </div>
+
+                    <div class="tab-pane fade" id="keys" role="tabpanel" aria-labelledby="keys-tab">
+                        
+                    </div>
+
+                    <div class="tab-pane fade" id="graphs" role="tabpanel" aria-labelledby="graphs-tab"
+                        style="margin-top: 1rem;">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="chart_type">
+                            <label class="custom-control-label" for="chart_type">Switch Graph Type</label>
+                        </div>
+                        <div class="row">
+                            <!-- <div class="col mb-4">
+                                <div class="card h-100" style="height: 100%;">
+                                    <div class="card-body">
+                                        <canvas id="key_graph" width="400" height="400"></canvas>
+                                    </div>
+                                </div>
+                            </div> -->
+                            <div class="col mb-4">
+                                <div class="card h-100" style="height: 100%;">
+                                    <div class="card-body">
+                                        <canvas id="key_chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...3</div>
+                </div>
+            </div>
+        </div>
+    </body>
 </div>
 
-<div class="alert alert-danger alert-dismissible fade show" style="display: none;" role="alert">
-    <strong id="alert-text">Discord User</strong>'s subscription has been cancelled. They will be removed from your
-    server on <strong id="date-text">Date</strong>
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-<% include ../partials/footer %>
+<div class="spinner" id="loading"></div>
+
+<script src="../js/dark-mode-switch.min.js"></script>
 
 </html>

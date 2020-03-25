@@ -27,21 +27,13 @@ module.exports = class Database {
 	}
 
 	async get_user(id) {
-		let collection = this.database.collection("admin");
-		let result = await collection.find({ "discord_id": id }).toArray();
+		let collection = this.database.collection("user");
+		let result = await collection.find({ "discord.id": id }).toArray();
 		if (result.length == 0) {
-			collection = this.database.collection("users");
-			result = await collection.find({ "discord_id": id }).toArray();
-			if (result.length == 0) {
-				return false;
-			}
-			else {
-				result[0].type = 'user';
-				return result[0];
-			}
-		} else {
-			result[0].type = 'admin';
-			return result[0]
+			return false;
+		}
+		else {
+			return result[0];
 		}
 	}
 
@@ -53,52 +45,44 @@ module.exports = class Database {
 
 	async add_user(userObj) {
 		let collection = this.database.collection('user');
-		await collection.insertOne(userObj, (error, result) => {
-			if (error) {
-				return response.status(500).send(error);
-			}
-			else {
-
-
-			}
-		});
+		return await collection.insertOne(userObj);
 	}
 
-	async update_user(discord_id, next_payment) {
-		let queryId = { discord_id: discord_id }; //Get the ID of the object
-		let myObj = { 
-			$set: { 
-				next_payment: next_payment //Whatever you want to change for that ID
+	async update_user(discord_id, name, value) {
+		let queryId = { 'discord.id': discord_id }; //Get the ID of the object
+		let myObj = {
+			$set: {
+				[name]: value //Whatever you want to change for that ID
 			}
-		  };
+		};
 		await this.database.collection("user").updateOne(queryId, myObj, (err, res) => {
 		});
 	}
 
 	async remove_user(discord_id) {
-		let queryId = { discord_id: discord_id }; 
+		let queryId = { discord_id: discord_id };
 		await this.database.collection("user").deleteOne(queryId, (err, res) => {
 		});
 	}
 
 	async update_settings(domain, name, value) {
 		let queryId = { domain: domain }; //Get the ID of the object
-		let myObj = { 
-			$set: { 
+		let myObj = {
+			$set: {
 				[name]: value //Whatever you want to change for that ID
 			}
-		  };
+		};
 		await this.database.collection("client").updateOne(queryId, myObj, (err, res) => {
-		}); 
+		});
 	}
 
 	async update_bulk_settings(domain, obj, discord_id) {
 		let queryId = { discord_id: discord_id }; //Get the ID of the object
-		let myObj = { 
+		let myObj = {
 			$set: obj
-		  };
+		};
 		await this.database.collection("user").updateOne(queryId, myObj, (err, res) => {
-		}); 
+		});
 	}
 
 	async check_key(key, discord) {
@@ -107,15 +91,15 @@ module.exports = class Database {
 		if (user && user.length == 1) {
 			if (user[0].discord_id == "") {
 				let date = new Date();
-				let myObj = { 
-					$set: { 
+				let myObj = {
+					$set: {
 						discord_id: discord.id, //Whatever you want to change for that ID
 						discord_name: discord.username + '#' + discord.discriminator,
 						next_payment: new Date(date.setMonth(date.getMonth() + 1))
 					}
-				  };
+				};
 				await this.database.collection("user").updateOne(query, myObj, (err, res) => {
-				}); 
+				});
 				return true;
 			}
 		}
