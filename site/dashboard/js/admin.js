@@ -126,7 +126,7 @@ $(document).ready(function () {
 
     // Keys
 
-
+    alert("update");
     // Roles
 
     updateRoleList();
