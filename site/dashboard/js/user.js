@@ -7,7 +7,6 @@ $(document).ready(function () {
       })
     //$('#loading').show();
     $.get("user-info", function (data) {
-        data = JSON.parse(data);
         document.title = data.name;
         document.querySelector('#user_name').textContent = data.discord_name;
         document.querySelector('#user_image').src = data.discord_image;

@@ -45,7 +45,7 @@
     </nav>
 
     <body class="body">
-        <div class="card text-dark bg-light mb-3" style="margin: 5vw;height: 100%;">
+        <div class="card text-dark bg-light mb-3" style="margin: 5vw;">
             <div class="card-body">
 
                 <ul class="nav nav-pills" id="myTab" role="tablist" style="margin-bottom: 1rem;">
@@ -62,8 +62,12 @@
                             aria-controls="releases" aria-selected="false">Releases</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="keys-tab" data-toggle="tab" href="#keys" role="tab"
-                            aria-controls="keys" aria-selected="false">Keys</a>
+                        <a class="nav-link" id="keys-tab" data-toggle="tab" href="#keys" role="tab" aria-controls="keys"
+                            aria-selected="false">Keys</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="roles-tab" data-toggle="tab" href="#roles" role="tab"
+                            aria-controls="roles" aria-selected="false">Roles</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" id="graph-tab" data-toggle="tab" href="#graphs" role="tab"
@@ -73,25 +77,26 @@
                         <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
                             aria-controls="contact" aria-selected="false">Contact</a>
                     </li>
+                    <li hidden class="nav-item">
+                        <a class="nav-link" id="user-description-tab" data-toggle="tab" href="#user-description"
+                            role="tab" aria-controls="user-description" aria-selected="false"></a>
+                    </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <div class="row">
                             <div class="col mb-4">
-                                <div class="card h-100" style="height: 100%;">
+                                <div class="grd-block h-100" style="height: 100%;">
                                     <div class="card-body">
                                         <h1 class="card-title"><img src="" width="40" height="40"
                                                 class="d-inline-block align-middle image-cropper" alt=""
-                                                id="user_image"> <a id="user_name"></a>
+                                                id="admin_image"> <a id="admin_name"></a>
                                         </h1>
                                         <p class="card-text">
                                             <div style="font-size: 200%;">
-                                                <a id="user_email"></a>
+                                                <a id="admin_email"></a>
                                             </div>
                                         </p>
-                                    </div>
-                                    <div class="card-footer text-muted" style="">
-                                        Status: <a id="discord_status"></a>
                                     </div>
                                 </div>
                             </div>
@@ -100,16 +105,16 @@
                             <div class="col mb-4">
                                 <div class="card h-100">
                                     <div class="card-body">
-                                        <h1 class="card-title">Test<a id="user_name"></a>
+                                        <h1 class="card-title">Test<a id=""></a>
                                         </h1>
                                         <p class="card-text">
                                             <div style="font-size: 200%;">
-                                                <a id="user_email"></a>
+                                                <a id=""></a>
                                             </div>
                                         </p>
                                     </div>
                                     <div class="card-footer text-muted" style="">
-                                        Status: <a id="discord_status"></a>
+                                        Status: <a id=""></a>
                                     </div>
                                 </div>
                             </div>
@@ -120,15 +125,37 @@
 
                         </div>
                     </div>
-
                     <div class="tab-pane fade" id="releases" role="tabpanel" aria-labelledby="releases-tab">
-                        
-                    </div>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <button type="button" class="btn btn-dark btn-lg" id="" data-toggle="modal"
+                                        data-placement="top" title="Click here to create a new release"
+                                        data-target="#create_release_modal">New</button>
+                                </li>
+                            </ol>
+                        </nav>
+                        <div class="" id="release_list">
 
+                        </div>
+                    </div>
                     <div class="tab-pane fade" id="keys" role="tabpanel" aria-labelledby="keys-tab">
-                        
-                    </div>
 
+                    </div>
+                    <div class="tab-pane fade" id="roles" role="tabpanel" aria-labelledby="roles-tab">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <button type="button" class="btn btn-dark btn-lg" id="" data-toggle="modal"
+                                        data-placement="top" title="Click here to create a new role"
+                                        data-target="#create_role_modal">New</button>
+                                </li>
+                            </ol>
+                        </nav>
+                        <div class="" id="role_list">
+
+                        </div>
+                    </div>
                     <div class="tab-pane fade" id="graphs" role="tabpanel" aria-labelledby="graphs-tab"
                         style="margin-top: 1rem;">
                         <div class="custom-control custom-switch">
@@ -153,6 +180,34 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...3</div>
+
+                    <div class="tab-pane fade" id="user-description" role="tabpanel" aria-labelledby="user-description"
+                        -tab">
+                        <div class="row">
+                            <div class="col-xl-9 mb-4">
+                                <div class="grd-block h-100" style="height: 100%;">
+                                    <div class="card-body">
+                                        <h1 class="card-title"><img src="" width="40" height="40"
+                                                class="d-inline-block align-middle image-cropper" alt=""
+                                                id="user_image"> <a id="user_name"></a>
+                                        </h1>
+                                        <p class="card-text">
+                                            <b>Email: </b><a id="user_email"></a><br>
+                                            <b>First Login: </b><a id="user_first_login"></a><br>
+                                            <b>Stripe Customer ID: </b><a id="user_stripe_customer_id"></a><br>
+                                            <b>Membership Status: </b><a id="user_membership"></a><br>
+                                            <b>Card: </b><a id="user_card"></a><br>
+                                            <b>Admin: </b><a id="user_admin"></a>
+
+                                        </p>
+                                    </div>
+                                    <!-- <div class="card-footer text-muted" style="">
+                                        Status: <a id="discord_status"></a>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,6 +215,138 @@
 </div>
 
 <div class="spinner" id="loading"></div>
+
+<div class="modal fade" id="create_release_modal" tabindex="-1" role="dialog" aria-labelledby="Create Release"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create a Release</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="release_name">Name</label>
+                        <input class="form-control" type="text" placeholder="Name" id="release_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="release_type">Type</label>
+                        <select class="form-control" id="release_type" required>
+                            <option>Monthly</option>
+                            <option>Lifetime</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="release_role">Role</label>
+                        <select class="form-control" id="release_role" required>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="release_price">Price (USD)</label>
+                        <input class="form-control" type="text" placeholder="25.00" id="release_price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="release_amount">Amount (-1 for no limit)</label>
+                        <input class="form-control" type="text" placeholder="-1" id="release_amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="release_active">Active</label>
+                        <select class="form-control" id="release_active" required>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="create_release_button">Create Release</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="remove_release_modal" tabindex="-1" role="dialog" aria-labelledby="Remove Release"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Are you sure you want to remove release?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                This action will permanent delete the <a id="release_modal_name"></a> release.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="remove_release_button" data-dismiss="modal">Remove
+                    Release</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="create_role_modal" tabindex="-1" role="dialog" aria-labelledby="Create Role"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create a Role</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="role_form">
+                    <div class="form-group">
+                        <label for="role_name">Name</label>
+                        <input class="form-control" type="text" placeholder="My Member" id="role_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="role_id">ID</label>
+                        <input type="number" pattern="\d+" class="form-control" type="text"
+                            placeholder="600797534797168642" id="role_id">
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="create_role_button" data-dismiss="modal">Add
+                    Role</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="remove_role_modal" tabindex="-1" role="dialog" aria-labelledby="Remove Role"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Are you sure you want this role?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                This action will permanent delete the <a id="role_name" i></a> role.<br><br>
+                <b>DANGER: </b>This action will break your releases and keys if linked. Please make sure no releases or
+                keys are actively using this role before continuing.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="remove_role_button" data-dismiss="modal">Remove
+                    Role</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="../js/dark-mode-switch.min.js"></script>
 

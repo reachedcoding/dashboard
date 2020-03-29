@@ -37,12 +37,6 @@ module.exports = class Database {
 		}
 	}
 
-	async find_user(discord_id) {
-		var query = { discord_id: discord_id };
-		let user = await this.database.collection("user").find(query).toArray();
-		return user;
-	}
-
 	async add_user(userObj) {
 		let collection = this.database.collection('user');
 		return await collection.insertOne(userObj);
@@ -59,10 +53,24 @@ module.exports = class Database {
 		});
 	}
 
-	async remove_user(discord_id) {
-		let queryId = { discord_id: discord_id };
-		await this.database.collection("user").deleteOne(queryId, (err, res) => {
-		});
+	async add_role(roleObj) {
+		let collection = this.database.collection('role');
+		return await collection.insertOne(roleObj);
+	}
+
+	async remove_role(name, id) {
+		let collection = this.database.collection('role');
+		return await collection.deleteOne({name: name, id: id});
+	}
+
+	async add_release(releaseObj) {
+		let collection = this.database.collection('release');
+		return await collection.insertOne(releaseObj);
+	}
+
+	async remove_release(name, type) {
+		let collection = this.database.collection('release');
+		return await collection.deleteOne({name: name, type: type});
 	}
 
 	async update_settings(domain, name, value) {

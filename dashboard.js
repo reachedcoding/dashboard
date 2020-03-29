@@ -66,6 +66,7 @@ app.use('/', async function (req, res, next) {
 			if (req.path != '/login' && req.cookies.a && req.cookies.r) {
 				res.locals.discord = await getDiscord(req);
 				res.locals.id = res.locals.discord.id;
+				console.log(res.locals.discord);
 				try {
 					res.locals.user = await client.db.get_user(res.locals.id);
 				} catch {
@@ -264,14 +265,6 @@ app.get('/paid_subscription', async function (req, res) {
 	res.redirect('/');
 });
 
-app.get('/user', function (req, res) {
-	res.render(path.join(__dirname, 'site/dashboard/pages/user.ejs'), {
-		name: res.locals.client.group_name,
-		discord_id: res.locals.discord.id,
-		logo: res.locals.client.logo
-	});
-})
-
 app.get('/success', async function (req, res) {
 	let client = res.locals.client;
 	let session_id = req.query.session_id;
@@ -412,7 +405,7 @@ app.get('/user-info', async function (req, res) {
 		card: card,
 		membership: false,
 	};
-	res.send(JSON.stringify(data));
+	res.send(data);
 });
 
 app.get('/admin-info', async function (req, res) {
@@ -434,6 +427,7 @@ app.get('/admin-info', async function (req, res) {
 		flags: discord.flags,
 		premium_type: discord.premium_type
 	});
+	let card = user.card;
 	let avatar = discord.avatar;
 	let discord_image = `https://cdn.discordapp.com/avatars/${discord_id}/${avatar}`;
 	let data = {
@@ -447,10 +441,7 @@ app.get('/admin-info', async function (req, res) {
 		discord_email: email,
 		discord_status: "Not joined",
 	};
-	if (user.admin)
-		res.send(JSON.stringify(data));
-	else
-		res.status(403).send("Unauthorized");
+	res.send(data);
 });
 
 app.get('/admin-users', async function (req, res) {
@@ -460,9 +451,128 @@ app.get('/admin-users', async function (req, res) {
 
 	let users = await client.db.get_collection('user');
 	if (user.admin)
-		res.send(JSON.stringify(users));
+		res.send(users);
 	else
 		res.status(403).send("Unauthorized");
+});
+
+app.get('/admin-user', async function (req, res) {
+	let client = res.locals.client;
+	let admin = res.locals.user;
+
+	let user = await client.db.get_user(req.query.id);
+
+	if (admin.admin)
+		res.send(user);
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.get('/admin-roles', async function (req, res) {
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let discord = res.locals.discord;
+
+	let roles = await client.db.get_collection('role');
+	if (user.admin)
+		res.send(roles);
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.post('/admin-roles', async function (req, res) {
+	let name = req.body.name;
+	let id = req.body.id;
+
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let discord = res.locals.discord;
+
+	let role = await client.db.add_role({
+		name: name,
+		id: id,
+		created: new Date(),
+	});
+
+	if (user.admin)
+		res.send(role);
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.post('/admin-roles-remove', async function (req,res) {
+	let name = req.body.name;
+	let id = req.body.id;
+
+	let client = res.locals.client;
+	let user = res.locals.user;
+
+	await client.db.remove_role(name, id);
+
+	if (user.admin)
+		res.status(200).send("Ok!");
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.get("/admin-releases", async function (req,res) {
+	let client = res.locals.client;
+	let user = res.locals.user;
+
+	let releases = await client.db.get_collection('release');
+	if (user.admin)
+		res.send(releases);
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.post('/admin-releases', async function (req, res) {
+	let name = req.body.name;
+	let type = req.body.type;
+	let role_name = req.body.role_name;
+	let role_id = req.body.role_id;
+	let price = req.body.price;
+	let amount = req.body.amount;
+	let active = req.body.active;
+
+	let client = res.locals.client;
+	let user = res.locals.user;
+	let discord = res.locals.discord;
+
+	let role = await client.db.add_release({
+		name: name,
+		type: type,
+		role_name: role_name,
+		role_id: role_id,
+		price: price,
+		amount: amount,
+		active: active,
+		created: new Date(),
+	});
+
+	if (user.admin)
+		res.send(role);
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.post('/admin-releases-remove', async function (req,res) {
+	let name = req.body.name;
+	let type = req.body.type;
+
+	let client = res.locals.client;
+	let user = res.locals.user;
+
+	await client.db.remove_release(name, type);
+
+	if (user.admin)
+		res.status(200).send("Ok!");
+	else
+		res.status(403).send("Unauthorized");
+});
+
+app.get('/user', function (req, res) {
+	res.render(path.join(__dirname, 'site/dashboard/pages/user-descript.ejs'));
 });
 
 app.get('/payment-method', async function (req, res) {
